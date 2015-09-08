@@ -108,10 +108,31 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
     return deprocess(net, src.data[0])
 
 
-img = np.float32(PIL.Image.open('mops_1024.jpg'))
+img = np.float32(PIL.Image.open('remko.jpg'))
 #showarray(img)
-test1 = deepdream(net, img)
-PIL.Image.fromarray(np.uint8(test1)).save("dreams/new_dream.jpg")
+#test1 = deepdream(net, img)
+guide = np.float32(PIL.Image.open('flowers.jpg'))
+#showarray(guide)
+
+end = 'inception_3b/output'
+h, w = guide.shape[:2]
+src, dst = net.blobs['data'], net.blobs[end]
+src.reshape(1,3,h,w)
+src.data[0] = preprocess(net, guide)
+net.forward(end=end)
+guide_features = dst.data[0].copy()
+
+def objective_guide(dst):
+    x = dst.data[0].copy()
+    y = guide_features
+    ch = x.shape[0]
+    x = x.reshape(ch,-1)
+    y = y.reshape(ch,-1)
+    A = x.T.dot(y) # compute the matrix of dot-products with guide features
+    dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
+
+test1=deepdream(net, img, end=end, objective=objective_guide)
+PIL.Image.fromarray(np.uint8(test1)).save("dreams/dream_remko3.jpg")
 
 '''
 _=deepdream(net, img)
@@ -136,7 +157,7 @@ for i in xrange(100):
 
 Image(filename='frames/0029.jpg')
 
-guide = np.float32(PIL.Image.open('car.jpg'))
+guide = np.float32(PIL.Image.open('flowers.jpg'))
 showarray(guide)
 
 end = 'inception_3b/output'

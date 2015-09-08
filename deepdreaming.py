@@ -18,6 +18,8 @@ import caffe
 
 # lalalalfasfddf
 
+# first step: get it to produce an image
+
 def showarray(a, fmt='jpeg'):
     a = np.uint8(np.clip(a, 0, 255))
     f = StringIO()
@@ -105,9 +107,13 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
     # returning the resulting image
     return deprocess(net, src.data[0])
 
-img = np.float32(PIL.Image.open('landscape.jpg'))
-showarray(img)
 
+img = np.float32(PIL.Image.open('mops_1024.jpg'))
+#showarray(img)
+test1 = deepdream(net, img)
+PIL.Image.fromarray(np.uint8(frame)).save("dreams/new_dream.jpg")
+
+'''
 _=deepdream(net, img)
 
 # here, output _
@@ -151,3 +157,5 @@ def objective_guide(dst):
     dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
 
 _=deepdream(net, img, end=end, objective=objective_guide)
+
+'''

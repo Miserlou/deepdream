@@ -111,7 +111,7 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
 img = np.float32(PIL.Image.open('mops_1024.jpg'))
 #showarray(img)
 test1 = deepdream(net, img)
-PIL.Image.fromarray(np.uint8(frame)).save("dreams/new_dream.jpg")
+PIL.Image.fromarray(np.uint8(test1)).save("dreams/new_dream.jpg")
 
 '''
 _=deepdream(net, img)

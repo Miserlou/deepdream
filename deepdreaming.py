@@ -16,7 +16,7 @@ import caffe
 # caffe.set_mode_gpu()
 # caffe.set_device(0) # select GPU device if multiple devices exist
 
-# lalalal
+# lalalalfasfddf
 
 def showarray(a, fmt='jpeg'):
     a = np.uint8(np.clip(a, 0, 255))

@@ -13,6 +13,8 @@ from google.protobuf import text_format
 
 import caffe
 
+OUTPUT_DIR = "dreams/"
+
 # If your GPU supports CUDA and Caffe was built with CUDA support,
 # uncomment the following to run Caffe operations on the GPU.
 # caffe.set_mode_gpu()
@@ -21,6 +23,7 @@ import caffe
 # lalalalfasfddf
 
 # first step: get it to produce an image
+
 
 def showarray(a, fmt='jpeg'):
     a = np.uint8(np.clip(a, 0, 255))
@@ -54,7 +57,7 @@ def objective_L2(dst):
 
 def make_step(net, step_size=1.5, end='inception_4c/output', 
               jitter=32, clip=True, objective=objective_L2):
-    '''Basic gradient ascent step.'''
+    """Basic gradient ascent step."""
 
     src = net.blobs['data'] # input image is stored in Net's 'data' blob
     dst = net.blobs[end]
@@ -109,7 +112,7 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
     # returning the resulting image
     return deprocess(net, src.data[0])
 
-
+'''
 img = np.float32(PIL.Image.open('remko.jpg'))
 #showarray(img)
 #test1 = deepdream(net, img)
@@ -136,7 +139,7 @@ def objective_guide(dst):
 test1=deepdream(net, img, end=end, objective=objective_guide)
 PIL.Image.fromarray(np.uint8(test1)).save("dreams/dream_remko3.jpg")
 
-'''
+
 _=deepdream(net, img)
 
 # here, output _
@@ -182,8 +185,31 @@ def objective_guide(dst):
 _=deepdream(net, img, end=end, objective=objective_guide)
 
 '''
+def get_output_file(input_file):
+    return OUTPUT_DIR + input_file.split('.')[0].split('_')[0] + '_dream.jpg'
 
-start_dream()
+def start_dream(source="sky_1024px.jpg", guide=None, iterations=None):
+    img = np.float32(PIL.Image.open(source))
+
+    if iterations:
+        pass
+        # dream for iterations iterations
+
+    if guide:
+        pass
+        # do guided dream
+    else:
+        result1 = deepdream(net, img)
+
+    PIL.Image.fromarray(np.uint8(result1)).save(get_output_file(input_file))
+    #if not iterations:
+
+    #pass
+
+# enable --help functionality
+
+# showarray must not be called
 
 if __name__ == "__main__":
-    start_dream()
+    print(sys.argv)
+    start_dream(*sys.argv[1:])

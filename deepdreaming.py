@@ -29,7 +29,8 @@ def showarray(a, fmt='jpeg'):
     a = np.uint8(np.clip(a, 0, 255))
     f = StringIO()
     PIL.Image.fromarray(a).save(f, fmt)
-    display(Image(data=f.getvalue()))
+    # why are these images not saved?
+    #display(Image(data=f.getvalue()))
 
 model_path = '../caffe/models/bvlc_googlenet/' # substitute your path here
 net_fn   = model_path + 'deploy.prototxt'
@@ -206,7 +207,7 @@ def get_output_file(input_file):
 
     return output_file
 
-def start_dream(source="sky_1024.jpg", guide=None, iterations=None):
+def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
     img = np.float32(PIL.Image.open(source))
 
     if iterations:
@@ -226,8 +227,8 @@ def start_dream(source="sky_1024.jpg", guide=None, iterations=None):
         return
 
 
-    if guide:
-        guide_image = np.float32(PIL.Image.open(guide))
+    if guide_file:
+        guide = np.float32(PIL.Image.open(guide_file))
         end = 'inception_3b/output'
         h, w = guide.shape[:2]
         src, dst = net.blobs['data'], net.blobs[end]
@@ -255,9 +256,10 @@ def start_dream(source="sky_1024.jpg", guide=None, iterations=None):
 
 # how does the "impressionist" style work?
 
+# shallow layers create textured images:
+# deepdream(net, img, end='inception_3b/5x5_reduce')
+# why is this shallow?
+
 if __name__ == "__main__":
-    print(get_output_file("sky_1024.jpg"))
-    print(get_output_file("sky_1024_1.jpg"))
-    print(get_output_file("sky_1024_2.jpg"))
     #print(sys.argv)
-    #start_dream(*sys.argv[1:])
+    start_dream(*sys.argv[1:])

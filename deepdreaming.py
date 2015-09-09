@@ -1,7 +1,7 @@
 # the dir frames need to be created!
 # branch the google project
 
-import sys
+import sys, os
 
 # imports and basic notebook setup
 from cStringIO import StringIO
@@ -186,7 +186,16 @@ _=deepdream(net, img, end=end, objective=objective_guide)
 
 '''
 def get_output_file(input_file):
-    return OUTPUT_DIR + input_file.split('.')[0].split('_')[0] + '_dream.jpg'
+    output_file = OUTPUT_DIR + input_file.split('.')[0].split('_')[0] + '_dream_1.jpg'
+
+    index=1
+
+    while os.path.exists(output_file):
+        
+        output_file = output_file.rstrip(str(index) + '_.jpg') + str(index+1) + '_.jpg'
+        index += 1
+
+    return output_file
 
 def start_dream(source="sky_1024.jpg", guide=None, iterations=None):
     img = np.float32(PIL.Image.open(source))
@@ -205,6 +214,8 @@ def start_dream(source="sky_1024.jpg", guide=None, iterations=None):
     #if not iterations:
 
     #pass
+
+# make a mechanism for not overwriting existing images!
 
 # enable --help functionality
 

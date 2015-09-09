@@ -188,7 +188,7 @@ def objective_guide(dst):
 _=deepdream(net, img, end=end, objective=objective_guide)
 
 '''
-def objective_guide(dst):
+def objective_guide(dst, guide_features):
     x = dst.data[0].copy()
     y = guide_features
     ch = x.shape[0]
@@ -240,7 +240,7 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
         net.forward(end=end)
         guide_features = dst.data[0].copy()
         # prolly needs argument passing
-        result1 = deepdream(net, img, end=end, objective=objective_guide)
+        result1 = deepdream(net, img, end=end, objective=objective_guide(dst, guide_features))
 
         
         # do guided dream

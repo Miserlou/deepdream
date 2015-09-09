@@ -147,7 +147,7 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
 
         h, w = frame.shape[:2]
         s = 0.05 # scale coefficient
-        for i in xrange(iterations):
+        for i in xrange(int(iterations)):
             frame = deepdream(net, frame)
             PIL.Image.fromarray(np.uint8(frame)).save("dreams/%04d.jpg"%frame_i)
             frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
@@ -155,7 +155,7 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
         return
 
 
-    if guide_file:
+    if guide_file != "False" and guide_file is not None:
         guide = np.float32(PIL.Image.open(guide_file))
         showarray(guide)
         end = 'inception_3b/output'

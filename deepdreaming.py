@@ -113,14 +113,7 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
     # returning the resulting image
     return deprocess(net, src.data[0])
 
-def objective_guide(dst):
-    x = dst.data[0].copy()
-    y = guide_features
-    ch = x.shape[0]
-    x = x.reshape(ch,-1)
-    y = y.reshape(ch,-1)
-    A = x.T.dot(y) # compute the matrix of dot-products with guide features
-    dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
+
 
 '''
 img = np.float32(PIL.Image.open('remko.jpg'))
@@ -195,6 +188,15 @@ def objective_guide(dst):
 _=deepdream(net, img, end=end, objective=objective_guide)
 
 '''
+def objective_guide(dst):
+    x = dst.data[0].copy()
+    y = guide_features
+    ch = x.shape[0]
+    x = x.reshape(ch,-1)
+    y = y.reshape(ch,-1)
+    A = x.T.dot(y) # compute the matrix of dot-products with guide features
+    dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
+
 def get_output_file(input_file):
     output_file = OUTPUT_DIR + input_file.split('.')[0].split('_')[0] + '_dream_1.jpg'
 
@@ -229,6 +231,7 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
 
     if guide_file:
         guide = np.float32(PIL.Image.open(guide_file))
+        showarray(guide)
         end = 'inception_3b/output'
         h, w = guide.shape[:2]
         src, dst = net.blobs['data'], net.blobs[end]
@@ -236,6 +239,7 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
         src.data[0] = preprocess(net, guide)
         net.forward(end=end)
         guide_features = dst.data[0].copy()
+        # prolly needs argument passing
         result1 = deepdream(net, img, end=end, objective=objective_guide)
 
         

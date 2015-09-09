@@ -166,11 +166,9 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
         net.forward(end=end)
         global guide_features
         guide_features = dst.data[0].copy()
-        # prolly needs argument passing
         result1 = deepdream(net, img, end=end, objective=objective_guide)
 
         
-        # do guided dream
     else:
         result1 = deepdream(net, img)
 
@@ -191,6 +189,8 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
 # deepdream(net, img, end='inception_3b/5x5_reduce')
 # why is this shallow?
 
+# 3b is more shallow than 4c...
+
 if __name__ == "__main__":
-    #print(sys.argv)
-    start_dream(*sys.argv[1:])
+    print(sys.argv)
+    #start_dream(*sys.argv[1:])

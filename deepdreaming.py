@@ -188,7 +188,7 @@ _=deepdream(net, img, end=end, objective=objective_guide)
 def get_output_file(input_file):
     return OUTPUT_DIR + input_file.split('.')[0].split('_')[0] + '_dream.jpg'
 
-def start_dream(source="sky_1024px.jpg", guide=None, iterations=None):
+def start_dream(source="sky_1024.jpg", guide=None, iterations=None):
     img = np.float32(PIL.Image.open(source))
 
     if iterations:

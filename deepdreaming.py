@@ -201,7 +201,7 @@ def start_dream(source="sky_1024px.jpg", guide=None, iterations=None):
     else:
         result1 = deepdream(net, img)
 
-    PIL.Image.fromarray(np.uint8(result1)).save(get_output_file(input_file))
+    PIL.Image.fromarray(np.uint8(result1)).save(get_output_file(source))
     #if not iterations:
 
     #pass

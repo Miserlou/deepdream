@@ -114,81 +114,7 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
     return deprocess(net, src.data[0])
 
 
-
-'''
-img = np.float32(PIL.Image.open('remko.jpg'))
-#showarray(img)
-#test1 = deepdream(net, img)
-# guide = np.float32(PIL.Image.open('flowers.jpg'))
-#showarray(guide)
-
-# end = 'inception_3b/output'
-# h, w = guide.shape[:2]
-# src, dst = net.blobs['data'], net.blobs[end]
-# src.reshape(1,3,h,w)
-# src.data[0] = preprocess(net, guide)
-# net.forward(end=end)
-# guide_features = dst.data[0].copy()
-
-# def objective_guide(dst):
-#     x = dst.data[0].copy()
-#     y = guide_features
-#     ch = x.shape[0]
-#     x = x.reshape(ch,-1)
-#     y = y.reshape(ch,-1)
-#     A = x.T.dot(y) # compute the matrix of dot-products with guide features
-#     dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
-
-# test1=deepdream(net, img, end=end, objective=objective_guide)
-# PIL.Image.fromarray(np.uint8(test1)).save("dreams/dream_remko3.jpg")
-
-
-_=deepdream(net, img)
-
-# here, output _
-
-_=deepdream(net, img, end='inception_3b/5x5_reduce')
-
-# net.blobs.keys()
-
-
-# frame = img
-# frame_i = 0
-
-# h, w = frame.shape[:2]
-# s = 0.05 # scale coefficient
-# for i in xrange(100):
-#     frame = deepdream(net, frame)
-#     PIL.Image.fromarray(np.uint8(frame)).save("frames/%04d.jpg"%frame_i)
-#     frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
-#     frame_i += 1
-
-# Image(filename='frames/0029.jpg')
-
-guide = np.float32(PIL.Image.open('flowers.jpg'))
-showarray(guide)
-
-end = 'inception_3b/output'
-h, w = guide.shape[:2]
-src, dst = net.blobs['data'], net.blobs[end]
-src.reshape(1,3,h,w)
-src.data[0] = preprocess(net, guide)
-net.forward(end=end)
-guide_features = dst.data[0].copy()
-
 def objective_guide(dst):
-    x = dst.data[0].copy()
-    y = guide_features
-    ch = x.shape[0]
-    x = x.reshape(ch,-1)
-    y = y.reshape(ch,-1)
-    A = x.T.dot(y) # compute the matrix of dot-products with guide features
-    dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
-
-_=deepdream(net, img, end=end, objective=objective_guide)
-
-'''
-def objective_guide(dst, guide_features):
     x = dst.data[0].copy()
     y = guide_features
     ch = x.shape[0]
@@ -238,9 +164,10 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
         src.reshape(1,3,h,w)
         src.data[0] = preprocess(net, guide)
         net.forward(end=end)
+        global guide_features
         guide_features = dst.data[0].copy()
         # prolly needs argument passing
-        result1 = deepdream(net, img, end=end, objective=objective_guide(dst, guide_features))
+        result1 = deepdream(net, img, end=end, objective=objective_guide)
 
         
         # do guided dream

@@ -1,6 +1,8 @@
 # the dir frames need to be created!
 # branch the google project
 
+import sys
+
 # imports and basic notebook setup
 from cStringIO import StringIO
 import numpy as np
@@ -180,3 +182,8 @@ def objective_guide(dst):
 _=deepdream(net, img, end=end, objective=objective_guide)
 
 '''
+
+start_dream()
+
+if __name__ == "__main__":
+    start_dream()

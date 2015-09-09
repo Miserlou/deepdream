@@ -256,5 +256,8 @@ def start_dream(source="sky_1024.jpg", guide=None, iterations=None):
 # how does the "impressionist" style work?
 
 if __name__ == "__main__":
-    print(sys.argv)
-    start_dream(*sys.argv[1:])
+    print(get_output_file("sky_1024.jpg"))
+    print(get_output_file("sky_1024_1.jpg"))
+    print(get_output_file("sky_1024_2.jpg"))
+    #print(sys.argv)
+    #start_dream(*sys.argv[1:])

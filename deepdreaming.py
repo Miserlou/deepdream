@@ -198,8 +198,13 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
 #http://www.tutorialspoint.com/python/python_command_line_arguments.htm
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--foo', nargs='?', const='c', default='d')
+    parser.add_argument('bar', nargs='?', default='d')
+
     print(sys.argv)
-    start_dream(*sys.argv[1:])
+    #print(**sys.argv[1:])
+    #start_dream(*sys.argv[1:])
 
     # sample input:
     # normal dream
@@ -211,3 +216,4 @@ if __name__ == "__main__":
 
     # can we fuse iteratvie and normal dream
     # plus, iterative guided dream?
+    # getopt, optparse, argparse

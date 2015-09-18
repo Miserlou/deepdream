@@ -195,8 +195,9 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--foo', nargs='?', const='c', default='d')
-    parser.add_argument('bar', nargs='?', default='d')
+    parser.add_argument('-f', '--file', nargs='?', default='sky_1024.jpg')
+    parser.add_argument('-g', '--guide', nargs='?', default=None)
+    parser.add_argument('-i', '--iterations', nargs='?', default=1)
     parser.parse_args('XX --foo YY'.split())
     # test arg parser with prior code
 
@@ -209,7 +210,7 @@ if __name__ == "__main__":
     # before implementing this, test if iterations=1 is the same as simple dream
     # yah, iterations = 1 is good!
 
-    print(sys.argv)
+    #print(sys.argv)
     #print(**sys.argv[1:])
     #start_dream(*sys.argv[1:])
 

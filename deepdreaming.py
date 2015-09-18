@@ -128,8 +128,12 @@ def objective_guide(dst):
     dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
 
 def get_output_path(input_file):
-    output_file = OUTPUT_DIR + input_file.split('.')[0].split('_')[0] + '_dream_1.jpg'
+    """ Create an output filename with the pattern 
+         'dream_' + input_file + '_' + index + '.jpg'
+         with index being the lowest number which does not overwrite an
+         existing dream. """
 
+    output_file = OUTPUT_DIR + 'dream_' + input_file.split('.')[0] + '_1.jpg'
     index=1
 
     while os.path.exists(output_file):
@@ -139,47 +143,6 @@ def get_output_path(input_file):
 
     return output_file
 
-'''
-def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
-    img = np.float32(PIL.Image.open(source))
-
-    # why the "False" comparison?
-    if guide_file != "False" and guide_file is not None:
-        guide = np.float32(PIL.Image.open(guide_file))
-        showarray(guide)
-        end = 'inception_3b/output'
-        h, w = guide.shape[:2]
-        src, dst = net.blobs['data'], net.blobs[end]
-        src.reshape(1,3,h,w)
-        src.data[0] = preprocess(net, guide)
-        net.forward(end=end)
-        global guide_features
-        guide_features = dst.data[0].copy()
-        result1 = deepdream(net, img, end=end, objective=objective_guide)
-        PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source))
-        return
-
-    elif iterations:
-        net.blobs.keys()
-
-        frame = img
-        frame_i = 0
-
-        h, w = frame.shape[:2]
-        s = 0.05 # scale coefficient
-        for i in xrange(int(iterations)):
-            frame = deepdream(net, frame)
-            PIL.Image.fromarray(np.uint8(frame)).save("dreams/%04d.jpg"%frame_i)
-            frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
-            frame_i += 1
-'''       
-
-    
-    #if not iterations:
-
-    #pass
-
-# make a mechanism for not overwriting existing images!
 
 # enable --help functionality
 
@@ -193,8 +156,6 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
 
 # 3b is more shallow than 4c...
 
-# use this to specify -i -o ect. specifications:
-#http://www.tutorialspoint.com/python/python_command_line_arguments.htm
 
 # iterated dream and guided dream could prolly be combined
 # (guided is just a preprocess)
@@ -237,6 +198,18 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--guide', nargs='?', default=None)
     parser.add_argument('-i', '--iterations', nargs='?', const=1, default=1)
     # add depth
+
+    # add help:
+    #   define guide for guided dreams
+    #   define iterations as the number of iterations
+    #   change the source with s
+    #   do shallow dreams
+    #   guide and iterations won't work now
+    #   output is dream_XXX with XXX being the input filename
+
+    # output filename is dream_ + input_file + index
+
+    # change output filename for íterated dreams
 
     # test arg parsing
     #print(parser.parse_args([]))

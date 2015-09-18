@@ -156,6 +156,7 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
         result1 = deepdream(net, img, end=end, objective=objective_guide)
         PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source))
         return
+
     elif iterations:
         net.blobs.keys()
 
@@ -193,11 +194,42 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
 # use this to specify -i -o ect. specifications:
 #http://www.tutorialspoint.com/python/python_command_line_arguments.htm
 
+# iterated dream and guided dream could prolly be combined
+# (guided is just a preprocess)
+def guided_dream(source_img, guide_path):
+        guide = np.float32(PIL.Image.open(guide_path))
+        showarray(guide)
+        end = 'inception_3b/output'
+        h, w = guide.shape[:2]
+        src, dst = net.blobs['data'], net.blobs[end]
+        src.reshape(1,3,h,w)
+        src.data[0] = preprocess(net, guide)
+        net.forward(end=end)
+        global guide_features
+        guide_features = dst.data[0].copy()
+        result1 = deepdream(net, img, end=end, objective=objective_guide)
+
+        PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source))
+
+def iterated_dream(source_img, iterations):
+        net.blobs.keys()
+
+        frame = img
+        frame_i = 0
+
+        h, w = frame.shape[:2]
+        s = 0.05 # scale coefficient
+        for i in xrange(int(iterations)):
+            frame = deepdream(net, frame)
+            PIL.Image.fromarray(np.uint8(frame)).save("dreams/%04d.jpg"%frame_i)
+            frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
+            frame_i += 1
+
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--file', nargs='?', const='sky_1024.jpg', default='sky_1024.jpg')
+    parser.add_argument('-s', '--source', nargs='?', const='sky_1024.jpg', default='sky_1024.jpg')
     parser.add_argument('-g', '--guide', nargs='?', default=None)
     parser.add_argument('-i', '--iterations', nargs='?', const=1, default=1)
     # add depth
@@ -209,6 +241,13 @@ if __name__ == "__main__":
     # test arg parser with prior code
 
     args = parser.parse_args(sys.argv[1:])
+
+    source_img = np.float32(PIL.Image.open(args.source))
+
+    if args.guide:
+        guided_dream(source_img, args.guide)
+    else:
+        iterated_dream(source_img, args.iterations)
 
 
     # input arguments:

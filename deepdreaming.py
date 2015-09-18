@@ -24,7 +24,7 @@ OUTPUT_DIR = "dreams/"
 
 # first step: get it to produce an image
 
-
+'''
 def showarray(a, fmt='jpeg'):
     a = np.uint8(np.clip(a, 0, 255))
     f = StringIO()
@@ -32,6 +32,7 @@ def showarray(a, fmt='jpeg'):
     # why are these images not saved?
     # because f is of type StringIO and not a filename
     #display(Image(data=f.getvalue()))
+'''
 
 # make ability to switch models
 model_path = '../caffe/models/bvlc_googlenet/' # substitute your path here
@@ -106,7 +107,7 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
             vis = deprocess(net, src.data[0])
             if not clip: # adjust image contrast if clipping is disabled
                 vis = vis*(255.0/np.percentile(vis, 99.98))
-            showarray(vis)
+            #showarray(vis)
             # is octave, i the depth?
             print octave, i, end, vis.shape
             clear_output(wait=True)
@@ -156,25 +157,14 @@ def get_output_path(input_file):
 
 # 3b is more shallow than 4c...
 
-def setup_guide(guide_path):
-    guide = np.float32(PIL.Image.open(guide_path))
-    showarray(guide)
-    end = 'inception_3b/output'
-    h, w = guide.shape[:2]
-    src, dst = net.blobs['data'], net.blobs[end]
-    src.reshape(1,3,h,w)
-    src.data[0] = preprocess(net, guide)
-    net.forward(end=end)
-    global guide_features
-    guide_features = dst.data[0].copy()
-    return end
+
 
 # iterated dream and guided dream could prolly be combined
 # (guided is just a preprocess)
 def guided_dream(source_path, guide_path):
     img = np.float32(PIL.Image.open(source_path))
     guide = np.float32(PIL.Image.open(guide_path))
-    showarray(guide)
+    #showarray(guide)
     end = 'inception_3b/output'
     h, w = guide.shape[:2]
     src, dst = net.blobs['data'], net.blobs[end]
@@ -187,7 +177,7 @@ def guided_dream(source_path, guide_path):
 
     PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source_path))
 
-def iterated_dream(source_path, iterations, end):
+def iterated_dream(source_path, iterations):
     img = np.float32(PIL.Image.open(source_path))
     net.blobs.keys()
 
@@ -197,12 +187,7 @@ def iterated_dream(source_path, iterations, end):
     h, w = frame.shape[:2]
     s = 0.05 # scale coefficient
     for i in xrange(int(iterations)):
-        if end:
-            # guided dream
-            frame = deepdream(net, frame, end=end, objective=objective_guide)
-        else:
-            frame = deepdream(net, frame)
-
+        frame = deepdream(net, frame)
         PIL.Image.fromarray(np.uint8(frame)).save("dreams/%04d.jpg"%frame_i)
         frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
         frame_i += 1
@@ -236,12 +221,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args(sys.argv[1:])
 
-    end = None 
+    
 
     if args.guide:
-        end = setup_guide(args.guide)
+        guided_dream(args.source, args.guide)
     else:
-        iterated_dream(args.source, args.iterations, end)
+        iterated_dream(args.source, args.iterations)
 
 
     # input arguments:

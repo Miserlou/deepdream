@@ -206,6 +206,7 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--source', nargs='?', const='sky_1024.jpg', default='sky_1024.jpg')
     parser.add_argument('-g', '--guide', nargs='?', default=None)
     parser.add_argument('-i', '--iterations', nargs='?', const=1, default=1)
+    parser.add_argument('-m', '--model', nargs='?', const='../caffe/models/bvlc_googlenet/', default='../caffe/models/bvlc_googlenet/')
     # add depth
 
     # add help:
@@ -263,3 +264,7 @@ if __name__ == "__main__":
     # can we fuse iteratvie and normal dream
     # plus, iterative guided dream???
     # getopt, optparse, argparse
+
+    # ARTICLE:
+    #   link to NN downloads, explain where to store, pass a model abbreviation
+    #   OR pass full model path (check for robustness , what happens w/o a subfolder)

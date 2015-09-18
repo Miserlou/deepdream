@@ -198,7 +198,12 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--file', nargs='?', default='sky_1024.jpg')
     parser.add_argument('-g', '--guide', nargs='?', default=None)
     parser.add_argument('-i', '--iterations', nargs='?', default=1)
-    parser.parse_args('XX --foo YY'.split())
+    # add depth
+
+    # test arg parsing
+    parser.parse_args([])
+    parser.parse_args(['-f'])
+    parser.parse_args('-f mops_1024.jpg -g sky_1024.jpg -i 100'.split())
     # test arg parser with prior code
 
     # input arguments:

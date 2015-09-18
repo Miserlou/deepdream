@@ -194,16 +194,18 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
 #http://www.tutorialspoint.com/python/python_command_line_arguments.htm
 
 if __name__ == "__main__":
+    import argparse
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--file', nargs='?', default='sky_1024.jpg')
+    parser.add_argument('-f', '--file', nargs='?', const='sky_1024.jpg' default='sky_1024.jpg')
     parser.add_argument('-g', '--guide', nargs='?', default=None)
-    parser.add_argument('-i', '--iterations', nargs='?', default=1)
+    parser.add_argument('-i', '--iterations', nargs='?', const=1 default=1)
     # add depth
 
     # test arg parsing
-    parser.parse_args([])
-    parser.parse_args(['-f'])
-    parser.parse_args('-f mops_1024.jpg -g sky_1024.jpg -i 100'.split())
+    print(parser.parse_args([]))
+    print(parser.parse_args(['-f']))
+    print(parser.parse_args('-f mops_1024.jpg -g sky_1024.jpg -i 100'.split()))
     # test arg parser with prior code
 
     # input arguments:

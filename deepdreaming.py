@@ -34,21 +34,24 @@ def showarray(a, fmt='jpeg'):
     #display(Image(data=f.getvalue()))
 '''
 
+# make this a function: set_model
 # make ability to switch models
-model_path = '../caffe/models/bvlc_googlenet/' # substitute your path here
-net_fn   = model_path + 'deploy.prototxt'
-param_fn = model_path + 'bvlc_googlenet.caffemodel'
+def create_net(model_path):
+    #model_path = '../caffe/models/bvlc_googlenet/' # substitute your path here
+    net_fn   = model_path + 'deploy.prototxt'
+    param_fn = model_path + 'bvlc_googlenet.caffemodel'
 
-# Patching model to be able to compute gradients.
-# Note that you can also manually add "force_backward: true" line to "deploy.prototxt".
-model = caffe.io.caffe_pb2.NetParameter()
-text_format.Merge(open(net_fn).read(), model)
-model.force_backward = True
-open('tmp.prototxt', 'w').write(str(model))
+    # Patching model to be able to compute gradients.
+    # Note that you can also manually add "force_backward: true" line to "deploy.prototxt".
+    model = caffe.io.caffe_pb2.NetParameter()
+    text_format.Merge(open(net_fn).read(), model)
+    model.force_backward = True
+    open('tmp.prototxt', 'w').write(str(model))
 
-net = caffe.Classifier('tmp.prototxt', param_fn,
-                       mean = np.float32([104.0, 116.0, 122.0]), # ImageNet mean, training set dependent
-                       channel_swap = (2,1,0)) # the reference model has channels in BGR order instead of RGB
+    net = caffe.Classifier('tmp.prototxt', param_fn,
+                           mean = np.float32([104.0, 116.0, 122.0]), # ImageNet mean, training set dependent
+                           channel_swap = (2,1,0)) # the reference model has channels in BGR order instead of RGB
+    return net
 
 # a couple of utility functions for converting to and from Caffe's input image layout
 def preprocess(net, img):
@@ -171,6 +174,7 @@ def guided_dream(source_path, guide_path):
     src.reshape(1,3,h,w)
     src.data[0] = preprocess(net, guide)
     net.forward(end=end)
+    # global required for overwriting the guide features
     global guide_features
     guide_features = dst.data[0].copy()
     result1 = deepdream(net, img, end=end, objective=objective_guide)
@@ -221,6 +225,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args(sys.argv[1:])
 
+    net = create_net('../caffe/models/bvlc_googlenet/')
     
 
     if args.guide:

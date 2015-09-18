@@ -141,23 +141,7 @@ def get_output_path(input_file):
 def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
     img = np.float32(PIL.Image.open(source))
 
-    if iterations:
-        net.blobs.keys()
-
-
-        frame = img
-        frame_i = 0
-
-        h, w = frame.shape[:2]
-        s = 0.05 # scale coefficient
-        for i in xrange(int(iterations)):
-            frame = deepdream(net, frame)
-            PIL.Image.fromarray(np.uint8(frame)).save("dreams/%04d.jpg"%frame_i)
-            frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
-            frame_i += 1
-        return
-
-
+    # why the "False" comparison?
     if guide_file != "False" and guide_file is not None:
         guide = np.float32(PIL.Image.open(guide_file))
         showarray(guide)
@@ -170,12 +154,24 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
         global guide_features
         guide_features = dst.data[0].copy()
         result1 = deepdream(net, img, end=end, objective=objective_guide)
+        PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source))
+        return
+    elif iterations:
+        net.blobs.keys()
 
+        frame = img
+        frame_i = 0
+
+        h, w = frame.shape[:2]
+        s = 0.05 # scale coefficient
+        for i in xrange(int(iterations)):
+            frame = deepdream(net, frame)
+            PIL.Image.fromarray(np.uint8(frame)).save("dreams/%04d.jpg"%frame_i)
+            frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
+            frame_i += 1
         
-    else:
-        result1 = deepdream(net, img)
 
-    PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source))
+    
     #if not iterations:
 
     #pass
@@ -201,6 +197,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--foo', nargs='?', const='c', default='d')
     parser.add_argument('bar', nargs='?', default='d')
+    parser.parse_args('XX --foo YY'.split())
+    # test arg parser with prior code
+
+    # input arguments:
+    #   optional input file -f --file default sky_1024.jpg
+    #   optional -g --guide default None
+    #   optional -i --iterations default 1
+    #   optional -d --depth default=? some kind of measure of shallowness...
+
+    # before implementing this, test if iterations=1 is the same as simple dream
+    # yah, iterations = 1 is good!
 
     print(sys.argv)
     #print(**sys.argv[1:])
@@ -215,5 +222,5 @@ if __name__ == "__main__":
     # python deepdreaming.py start=raspberry_pi_1024.jpg guide=mops_1024.jpg iterations=None
 
     # can we fuse iteratvie and normal dream
-    # plus, iterative guided dream?
+    # plus, iterative guided dream???
     # getopt, optparse, argparse

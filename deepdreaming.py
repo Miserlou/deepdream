@@ -30,6 +30,7 @@ def showarray(a, fmt='jpeg'):
     f = StringIO()
     PIL.Image.fromarray(a).save(f, fmt)
     # why are these images not saved?
+    # because f is of type StringIO and not a filename
     #display(Image(data=f.getvalue()))
 
 model_path = '../caffe/models/bvlc_googlenet/' # substitute your path here
@@ -190,6 +191,9 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
 # why is this shallow?
 
 # 3b is more shallow than 4c...
+
+# use this to specify -i -o ect. specifications:
+#http://www.tutorialspoint.com/python/python_command_line_arguments.htm
 
 if __name__ == "__main__":
     print(sys.argv)

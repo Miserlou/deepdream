@@ -208,7 +208,8 @@ if __name__ == "__main__":
     #print(parser.parse_args('-f mops_1024.jpg -g sky_1024.jpg -i 100'.split()))
     # test arg parser with prior code
 
-    print(parser.parse_args(sys.argv[1:]))
+    args = parser.parse_args(sys.argv[1:])
+
 
     # input arguments:
     #   optional input file -f --file default sky_1024.jpg

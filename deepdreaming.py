@@ -207,14 +207,14 @@ def guided_dream(source_img, guide_path):
         net.forward(end=end)
         global guide_features
         guide_features = dst.data[0].copy()
-        result1 = deepdream(net, img, end=end, objective=objective_guide)
+        result1 = deepdream(net, source_img, end=end, objective=objective_guide)
 
         PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source))
 
 def iterated_dream(source_img, iterations):
         net.blobs.keys()
 
-        frame = img
+        frame = source_img
         frame_i = 0
 
         h, w = frame.shape[:2]

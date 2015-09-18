@@ -13,7 +13,7 @@ from google.protobuf import text_format
 
 import caffe
 
-OUTPUT_DIR = "dreams/"
+#OUTPUT_DIR = "dreams/"
 
 # If your GPU supports CUDA and Caffe was built with CUDA support,
 # uncomment the following to run Caffe operations on the GPU.
@@ -131,19 +131,22 @@ def objective_guide(dst):
     A = x.T.dot(y) # compute the matrix of dot-products with guide features
     dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
 
-def get_output_path(input_file):
+def output_path():
     """ Create an output filename with the pattern 
          'dream_' + input_file + '_' + index + '.jpg'
          with index being the lowest number which does not overwrite an
          existing dream. """
 
-    output_file = OUTPUT_DIR + 'dream_' + input_file.split('.')[0] + '_1.jpg'
-    index=1
+    # prettify this nasty shite
+
+    #output_file = OUTPUT_DIR + 'dream_' + input_file.split('.')[0] + '_1.jpg'
+    index=0
+    output_file = "dreams/%06d.jpg"%index
+    # make this more simple, it should just be the image with the highest index.
 
     while os.path.exists(output_file):
-        
-        output_file = output_file.rstrip(str(index) + '.jpg') + str(index+1) + '.jpg'
         index += 1
+        output_file = "dreams/%06d.jpg"%index
 
     return output_file
 
@@ -186,15 +189,15 @@ def iterated_dream(source_path, iterations):
     net.blobs.keys()
 
     frame = img
-    frame_i = 0
+    #frame_i = 0
 
     h, w = frame.shape[:2]
     s = 0.05 # scale coefficient
     for i in xrange(int(iterations)):
         frame = deepdream(net, frame)
-        PIL.Image.fromarray(np.uint8(frame)).save("dreams/%04d.jpg"%frame_i)
+        PIL.Image.fromarray(np.uint8(frame)).save(output_path())
         frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
-        frame_i += 1
+        #frame_i += 1
 
 if __name__ == "__main__":
     import argparse
@@ -222,6 +225,8 @@ if __name__ == "__main__":
     #print(parser.parse_args(['-f']))
     #print(parser.parse_args('-f mops_1024.jpg -g sky_1024.jpg -i 100'.split()))
     # test arg parser with prior code
+
+    # add hint about obtaining layers to article
 
     args = parser.parse_args(sys.argv[1:])
 

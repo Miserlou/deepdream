@@ -126,7 +126,7 @@ def objective_guide(dst):
     A = x.T.dot(y) # compute the matrix of dot-products with guide features
     dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
 
-def get_output_file(input_file):
+def get_output_path(input_file):
     output_file = OUTPUT_DIR + input_file.split('.')[0].split('_')[0] + '_dream_1.jpg'
 
     index=1
@@ -175,7 +175,7 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
     else:
         result1 = deepdream(net, img)
 
-    PIL.Image.fromarray(np.uint8(result1)).save(get_output_file(source))
+    PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source))
     #if not iterations:
 
     #pass
@@ -199,4 +199,15 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
 
 if __name__ == "__main__":
     print(sys.argv)
-    #start_dream(*sys.argv[1:])
+    start_dream(*sys.argv[1:])
+
+    # sample input:
+    # normal dream
+    # python deepdreaming.py start=raspberry_pi_1024.jpg guide=None iterations=None
+    # iterative dream
+    # python deepdreaming.py start=raspberry_pi_1024.jpg guide=None iterations=2
+    # guided dream
+    # python deepdreaming.py start=raspberry_pi_1024.jpg guide=mops_1024.jpg iterations=None
+
+    # can we fuse iteratvie and normal dream
+    # plus, iterative guided dream?

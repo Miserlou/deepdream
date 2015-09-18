@@ -33,6 +33,7 @@ def showarray(a, fmt='jpeg'):
     # because f is of type StringIO and not a filename
     #display(Image(data=f.getvalue()))
 
+# make ability to switch models
 model_path = '../caffe/models/bvlc_googlenet/' # substitute your path here
 net_fn   = model_path + 'deploy.prototxt'
 param_fn = model_path + 'bvlc_googlenet.caffemodel'
@@ -117,6 +118,7 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
 
 def objective_guide(dst):
     x = dst.data[0].copy()
+    # guide_features is global here
     y = guide_features
     ch = x.shape[0]
     x = x.reshape(ch,-1)
@@ -182,7 +184,7 @@ def start_dream(source="sky_1024.jpg", guide_file=None, iterations=None):
 
 # enable --help functionality
 
-# showarray must not be called
+# showarray prolly can be deleted
 
 # how does the "impressionist" style work?
 

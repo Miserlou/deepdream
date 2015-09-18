@@ -156,6 +156,18 @@ def get_output_path(input_file):
 
 # 3b is more shallow than 4c...
 
+def setup_guide(guide_path):
+    guide = np.float32(PIL.Image.open(guide_path))
+    showarray(guide)
+    end = 'inception_3b/output'
+    h, w = guide.shape[:2]
+    src, dst = net.blobs['data'], net.blobs[end]
+    src.reshape(1,3,h,w)
+    src.data[0] = preprocess(net, guide)
+    net.forward(end=end)
+    global guide_features
+    guide_features = dst.data[0].copy()
+    return end
 
 # iterated dream and guided dream could prolly be combined
 # (guided is just a preprocess)
@@ -175,7 +187,7 @@ def guided_dream(source_path, guide_path):
 
     PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source_path))
 
-def iterated_dream(source_path, iterations):
+def iterated_dream(source_path, iterations, end):
     img = np.float32(PIL.Image.open(source_path))
     net.blobs.keys()
 
@@ -185,7 +197,12 @@ def iterated_dream(source_path, iterations):
     h, w = frame.shape[:2]
     s = 0.05 # scale coefficient
     for i in xrange(int(iterations)):
-        frame = deepdream(net, frame)
+        if end:
+            # guided dream
+            frame = deepdream(net, frame, end=end, objective=objective_guide)
+        else:
+            frame = deepdream(net, frame)
+
         PIL.Image.fromarray(np.uint8(frame)).save("dreams/%04d.jpg"%frame_i)
         frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
         frame_i += 1
@@ -207,9 +224,9 @@ if __name__ == "__main__":
     #   guide and iterations won't work now
     #   output is dream_XXX with XXX being the input filename
 
-    # output filename is dream_ + input_file + index
+    # output filename is dream_ + input_file + highest index which does not overwrite
+    # a dream + .jpg
 
-    # change output filename for íterated dreams
 
     # test arg parsing
     #print(parser.parse_args([]))
@@ -219,12 +236,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args(sys.argv[1:])
 
-    
+    end = None 
 
     if args.guide:
-        guided_dream(args.source, args.guide)
+        end = setup_guide(args.guide)
     else:
-        iterated_dream(args.source, args.iterations)
+        iterated_dream(args.source, args.iterations, end)
 
 
     # input arguments:

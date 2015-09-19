@@ -62,10 +62,16 @@ class Dreamer(object):
         self.img = np.float32(PIL.Image.open(source_path))
         self.net = net
         self.iterations = iterations
-        self.guide_func
+        self.objective = objective_L2
+
+
         if guide_path:
-            self.
-        self.guide= guide
+            self.guide_features = create_guide(guide_path)
+            self.objective = objective_guide
+
+    def create_guide(self, guide_path):
+        return None
+        #self.guide= guide
         #self.iterated_dream(source_path, iterations)
 
     # iterated dream and guided dream could prolly be combined
@@ -105,7 +111,7 @@ class Dreamer(object):
             frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
 
     def make_step(self, step_size=1.5, end='inception_4c/output', 
-                  jitter=32, clip=True, objective=objective_L2):
+                  jitter=32, clip=True):
         """Basic gradient ascent step."""
 
         src = self.net.blobs['data'] # input image is stored in Net's 'data' blob
@@ -115,7 +121,7 @@ class Dreamer(object):
         src.data[0] = np.roll(np.roll(src.data[0], ox, -1), oy, -2) # apply jitter shift
                 
         self.net.forward(end=end)
-        objective(dst)  # specify the optimization objective
+        self.objective(dst)  # specify the optimization objective
         self.net.backward(start=end)
         g = src.diff[0]
         # apply normalized ascent step to the input image

@@ -13,6 +13,8 @@ from google.protobuf import text_format
 
 import caffe
 
+import os
+
 # If your GPU supports CUDA and Caffe was built with CUDA support,
 # uncomment the following to run Caffe operations on the GPU.
 # caffe.set_mode_gpu()
@@ -20,14 +22,17 @@ import caffe
 
 
 def create_net(model_file):
+    #import ipdb
+    #ipdb.set_trace()
     # here, it should be the file path; for net_fn, split of the last component
-    net_fn= '/'.join(model_file.split('/')[:-1].append('deploy.prototxt'))
+    #net_fn= '/'.join(model_file.split('/')[:-1].append('deploy.prototxt'))
+    net_fn = os.path.join(os.path.split(model_file)[0], 'deploy.prototxt')
     #model_path = '../caffe/models/bvlc_googlenet/' # substitute your path here
     #net_fn   = model_file + 'deploy.prototxt'
-    param_fn = model_file + '/bvlc_googlenet.caffemodel'
+    param_fn = model_file
+    #param_fn = model_file + '/bvlc_googlenet.caffemodel'
 
-    import ipdb
-    ipdb.set_trace()
+
 
     # Patching model to be able to compute gradients.
     # Note that you can also manually add "force_backward: true" line to "deploy.prototxt".

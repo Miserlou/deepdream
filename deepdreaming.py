@@ -229,9 +229,11 @@ if __name__ == "__main__":
 
     # add hint about obtaining layers to article
 
+    # we did not apply the different models!
+
     args = parser.parse_args(sys.argv[1:])
 
-    net = create_net('../caffe/models/bvlc_googlenet/')
+    net = create_net(args.model)
     
 
     if args.guide:

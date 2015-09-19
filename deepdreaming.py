@@ -188,8 +188,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--source', nargs='?', const='sky_1024.jpg', default='sky_1024.jpg')
     parser.add_argument('-g', '--guide', nargs='?', default=None)
-    parser.add_argument('-i', '--iterations', nargs='?', const=1, default=1)
-    parser.add_argument('-m', '--model', nargs='?', const='../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel', default='../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel')
+    parser.add_argument('-i', '--iterations', nargs='?', type=int, const=1, default=1)
+    #parser.add_argument('-m', '--model', nargs='?', const='../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel', default='../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel')
+    
+    parser.add_argument('-m', '--model', nargs='?', metavar='int', type=int,
+                                    choices=xrange(5)+1, help='model 1..5',
+                                    const=1, default=1)
+
+    models_base = '../caffe/models'
+    model_default = '../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel'
+    models = ('bvlc_googlenet/bvlc_googlenet.caffemodel',
+                    'bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel',
+                    'bvlc_reference_rcnn_ilsvrc13/bvlc_reference_rcnn_ilsvrc13.caffemodel',
+                    'finetune_flickr_style/finetune_flickr_style.caffemodel',
+                    'bvlc_alexnet/bvlc_alexnet.caffemodel')
     # add depth
 
     # make model an indexed parameter! [1..5] for the different types
@@ -218,7 +230,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args(sys.argv[1:])
 
-    net = create_net(args.model)
+    net = create_net(os.path.join(models_base, models(args.model)))
     #net = create_net('../caffe/models/bvlc_googlenet/')
 
     # we have these:

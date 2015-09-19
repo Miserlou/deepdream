@@ -13,29 +13,12 @@ from google.protobuf import text_format
 
 import caffe
 
-#OUTPUT_DIR = "dreams/"
-
 # If your GPU supports CUDA and Caffe was built with CUDA support,
 # uncomment the following to run Caffe operations on the GPU.
 # caffe.set_mode_gpu()
 # caffe.set_device(0) # select GPU device if multiple devices exist
 
-# lalalalfasfddf
 
-# first step: get it to produce an image
-
-'''
-def showarray(a, fmt='jpeg'):
-    a = np.uint8(np.clip(a, 0, 255))
-    f = StringIO()
-    PIL.Image.fromarray(a).save(f, fmt)
-    # why are these images not saved?
-    # because f is of type StringIO and not a filename
-    #display(Image(data=f.getvalue()))
-'''
-
-# make this a function: set_model
-# make ability to switch models
 def create_net(model_path):
     #model_path = '../caffe/models/bvlc_googlenet/' # substitute your path here
     net_fn   = model_path + 'deploy.prototxt'
@@ -132,17 +115,9 @@ def objective_guide(dst):
     dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
 
 def output_path():
-    """ Create an output filename with the pattern 
-         'dream_' + input_file + '_' + index + '.jpg'
-         with index being the lowest number which does not overwrite an
-         existing dream. """
 
-    # prettify this nasty shite
-
-    #output_file = OUTPUT_DIR + 'dream_' + input_file.split('.')[0] + '_1.jpg'
     index=0
     output_file = "dreams/%06d.jpg"%index
-    # make this more simple, it should just be the image with the highest index.
 
     while os.path.exists(output_file):
         index += 1
@@ -152,8 +127,6 @@ def output_path():
 
 
 # enable --help functionality
-
-# showarray prolly can be deleted
 
 # how does the "impressionist" style work?
 
@@ -234,6 +207,11 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
 
     net = create_net(args.model)
+    #net = create_net('../caffe/models/bvlc_googlenet/')
+
+    # we have these:
+    #  models/bvlc_reference_rcnn_ilsvrc13
+    #  models/finetune_flickr_style
     
 
     if args.guide:
@@ -278,3 +256,10 @@ if __name__ == "__main__":
     # ./scripts/download_model_binary.py models/bvlc_googlenet
 
     # Change github repo readme
+
+    # install additional nets:
+    # cd ~/deepdream/caffe
+    # ./scripts/download_model_binary.py models/bvlc_reference_caffenet
+    # ./scripts/download_model_binary.py models/bvlc_reference_rcnn_ilsvrc13
+    # ./scripts/download_model_binary.py models/finetune_flickr_style
+    # ./scripts/download_model_binary.py models/bvlc_alexnet

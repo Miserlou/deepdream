@@ -59,7 +59,8 @@ class Dreamer(object):
         self.end = end
 
         if guide_path:
-            self.end, self.guide_features = self.create_guide(guide_path)
+            #self.end, self.guide_features = self.create_guide(guide_path)
+            self.guide_features = self.create_guide(guide_path)
             self.objective = self.objective_guide
 
     def objective_guide(self, dst):
@@ -77,14 +78,15 @@ class Dreamer(object):
         guide = np.float32(PIL.Image.open(guide_path))
         # why is an end set for the guided dream? try result without
         # this makes the dream more shallow
-        end = 'inception_3b/output'
+        #end = 'inception_3b/output'
         h, w = guide.shape[:2]
-        src, dst = net.blobs['data'], net.blobs[end]
+        src, dst = net.blobs['data'], net.blobs[self.end]
         src.reshape(1,3,h,w)
         src.data[0] = preprocess(net, guide)
-        self.net.forward(end=end)
+        self.net.forward(end=self.end)
 
-        return end, dst.data[0].copy()
+        return dst.data[0].copy()
+        #return end, dst.data[0].copy()
 
     def iterated_dream(self):
         self.net.blobs.keys()
@@ -212,16 +214,47 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
     net = create_net(os.path.join(models_base, models[args.model-1]))
 
+    # off for layer test
+    '''
     dreamer = Dreamer(net=net, source_path=args.source, 
                                    iterations=args.iterations, end=args.depth, 
                                    guide_path=args.guide)
     dreamer.iterated_dream()
+    '''
 
     # depth values:
     #   'inception_3b/output' for guided dreams
     #   'inception_4c/output' is default
     #   'inception_3b/5x5_reduce' for shallow dreams(earlier than guided dream)
     # ideally, implement an index 1..10 for depth
+
+    # 18 layer types...
+    numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
+    types = ['/output', '/5x5_reduce']
+
+    for x in ['inception_4c/1x1', 'inception_4c/relu_5x5_reduce', 
+                'inception_4c/relu_5x5', 'inception_4c/relu_pool_proj', 
+                'inception_4c/5x5_reduce', 'inception_4c/output']:
+            dreamer = Dreamer(net=net, source_path=args.source, 
+                                   iterations=args.iterations, end=x, 
+                                   guide_path=args.guide)
+            dreamer.iterated_dream()
+
+    # maybe the other layer types are cool, too?
+    # try relu_5x5_reduce
+    #   relu_5x5
+    #   inception_3a/1x1
+    #   3b/relu_pool_proj
+
+    layer_types = {}
+
+    index = 0
+    for n in numbering:
+        for t in types:
+            layer_types[index] = n + t
+            index += 1
+
+    #print "len layer_types: " + str(len(layer_types))
 
     # first inception_ "inception_3a/1x1"
     # last inception_3a/output
@@ -239,6 +272,21 @@ if __name__ == "__main__":
     #   normal dream with guided dream depth
     #   find other values for depth
     #   why is shallow 5x5_reduce?
+
+    # 00030: deep dream to 4c depth
+    # 00031: deep dream to inception_3b/5x5_reduce depth
+    # 00032: deep dream to inception_3b/output depth
+    # 00033: deep dream to inception_3a/output depth
+
+    # 00034: deep dream to inception_3a/output depth no guide
+    # 00035: deep dream to inception_3a/5x5_reduce depth no guide
+    # 00036: deep dream to inception_5b/output depth no guide
+    # 00037: deep dream to inception_5b/5x5_reduce depth no guide
+    # 00038: deep dream to inception_4c/output depth no guide
+    # 00039: deep dream to inception_4c/5x5_reduce depth no guide
+
+    # the reduce layer exists for every output layer: what is the difference between
+    #   reduce and output? try non-guided for different depths
 
 
     # sample input:
@@ -285,6 +333,8 @@ if __name__ == "__main__":
     #   output is dream_XXX with XXX being the input filename
 
     # add the output directory for the article
+
+    # supply deepdream image?
 
 
     # test arg parsing

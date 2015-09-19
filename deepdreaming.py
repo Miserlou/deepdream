@@ -48,10 +48,9 @@ def objective_L2(dst):
     dst.diff[:] = dst.data 
 
 class Dreamer(object):
-    def __init__(self, net, source_path, iterations, guide):
+    def __init__(self, net, source_path, guide):
         self.img = np.float32(PIL.Image.open(source_path))
         self.net = net
-        self.iterations = iterations
         self.guide= guide
         #self.iterated_dream(source_path, iterations)
 
@@ -304,8 +303,8 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
     net = create_net(os.path.join(models_base, models[args.model-1]))
 
-    dreamer = Dreamer(net, args.source, args.guide)
-    dreamer.iterated_dream(args.iterations)
+    dreamer = Dreamer(net, args.source, args.iterations, args.guide)
+    dreamer.iterated_dream()
     '''
     if args.guide:
         guided_dream(args.source, args.guide)

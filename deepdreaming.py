@@ -232,13 +232,13 @@ if __name__ == "__main__":
     numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
     types = ['/output', '/5x5_reduce']
 
-   # it seems as if we have:
-   numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
-   #size = ['1x1', '3x3', '5x5']  # w/o reduce
-   types = ['1x1', '3x3', '5x5', '/output', '/5x5_reduce', '/3x3_reduce']
+    # it seems as if we have:
+    numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
+    #size = ['1x1', '3x3', '5x5']  # w/o reduce
+    types = ['1x1', '3x3', '5x5', '/output', '/5x5_reduce', '/3x3_reduce']
 
 
-   for n in numbering:
+    for n in numbering:
         for t in types:
             end = n + '/' + t
             dreamer = Dreamer(net=net, source_path=args.source, 

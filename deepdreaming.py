@@ -22,17 +22,8 @@ import os
 
 
 def create_net(model_file):
-    #import ipdb
-    #ipdb.set_trace()
-    # here, it should be the file path; for net_fn, split of the last component
-    #net_fn= '/'.join(model_file.split('/')[:-1].append('deploy.prototxt'))
     net_fn = os.path.join(os.path.split(model_file)[0], 'deploy.prototxt')
-    #model_path = '../caffe/models/bvlc_googlenet/' # substitute your path here
-    #net_fn   = model_file + 'deploy.prototxt'
     param_fn = model_file
-    #param_fn = model_file + '/bvlc_googlenet.caffemodel'
-
-
 
     # Patching model to be able to compute gradients.
     # Note that you can also manually add "force_backward: true" line to "deploy.prototxt".
@@ -52,6 +43,7 @@ def preprocess(net, img):
 def deprocess(net, img):
     return np.dstack((img + net.transformer.mean['data'])[::-1])
 
+# regular, non-guided objective
 def objective_L2(dst):
     dst.diff[:] = dst.data 
 
@@ -160,7 +152,11 @@ def guided_dream(source_path, guide_path):
     src.data[0] = preprocess(net, guide)
     net.forward(end=end)
     # global required for overwriting the guide features
-    #global guide_features
+    global guide_features
+    # what we are doing here is setting the guide once and keeping it;
+    #    just x in objective_guide is modified
+    # the objective guide is first passed into deepdream and then into make_step!
+    # end, on the other hand, is processed in forward and backward
     guide_features = dst.data[0].copy()
     result1 = deepdream(net, img, end=end, objective=objective_guide)
 

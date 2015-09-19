@@ -114,17 +114,8 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
     return deprocess(net, src.data[0])
 
 
-def objective_guide(dst):
-    x = dst.data[0].copy()
-    # guide_features is global here
-    y = guide_features
-    ch = x.shape[0]
-    x = x.reshape(ch,-1)
-    y = y.reshape(ch,-1)
-    A = x.T.dot(y) # compute the matrix of dot-products with guide features
-    dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
-
 def output_path():
+    # faster with sort
 
     index=0
     output_file = "dreams/%06d.jpg"%index
@@ -146,7 +137,15 @@ def output_path():
 
 # 3b is more shallow than 4c...
 
-
+def objective_guide(dst):
+    x = dst.data[0].copy()
+    # guide_features is global here
+    y = guide_features
+    ch = x.shape[0]
+    x = x.reshape(ch,-1)
+    y = y.reshape(ch,-1)
+    A = x.T.dot(y) # compute the matrix of dot-products with guide features
+    dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
 
 # iterated dream and guided dream could prolly be combined
 # (guided is just a preprocess)
@@ -161,7 +160,7 @@ def guided_dream(source_path, guide_path):
     src.data[0] = preprocess(net, guide)
     net.forward(end=end)
     # global required for overwriting the guide features
-    global guide_features
+    #global guide_features
     guide_features = dst.data[0].copy()
     result1 = deepdream(net, img, end=end, objective=objective_guide)
 
@@ -172,7 +171,6 @@ def iterated_dream(source_path, iterations):
     net.blobs.keys()
 
     frame = img
-    #frame_i = 0
 
     h, w = frame.shape[:2]
     s = 0.05 # scale coefficient
@@ -180,7 +178,6 @@ def iterated_dream(source_path, iterations):
         frame = deepdream(net, frame)
         PIL.Image.fromarray(np.uint8(frame)).save(output_path())
         frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
-        #frame_i += 1
 
 if __name__ == "__main__":
     import argparse
@@ -189,20 +186,21 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--source', nargs='?', const='sky_1024.jpg', default='sky_1024.jpg')
     parser.add_argument('-g', '--guide', nargs='?', default=None)
     parser.add_argument('-i', '--iterations', nargs='?', type=int, const=1, default=1)
-    #parser.add_argument('-m', '--model', nargs='?', const='../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel', default='../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel')
-    
     parser.add_argument('-m', '--model', nargs='?', metavar='int', type=int,
                                     choices=xrange(1, 6), help='model 1..5',
                                     const=1, default=1)
+    # add -d = depth
 
     models_base = '../caffe/models'
-    model_default = '../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel'
+    #model_default = '../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel'
     models = ('bvlc_googlenet/bvlc_googlenet.caffemodel',
                     'bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel',
                     'bvlc_reference_rcnn_ilsvrc13/bvlc_reference_rcnn_ilsvrc13.caffemodel',
                     'finetune_flickr_style/finetune_flickr_style.caffemodel',
                     'bvlc_alexnet/bvlc_alexnet.caffemodel')
     # add depth
+
+    # the other models do not work right now...
 
     # make model an indexed parameter! [1..5] for the different types
 
@@ -230,11 +228,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args(sys.argv[1:])
     net = create_net(os.path.join(models_base, models[args.model-1]))
-    #net = create_net('../caffe/models/bvlc_googlenet/')
 
-    # we have these:
-    #  models/bvlc_reference_rcnn_ilsvrc13
-    #  models/finetune_flickr_style
     
 
     if args.guide:
@@ -242,19 +236,6 @@ if __name__ == "__main__":
     else:
         iterated_dream(args.source, args.iterations)
 
-
-    # input arguments:
-    #   optional input file -f --file default sky_1024.jpg
-    #   optional -g --guide default None
-    #   optional -i --iterations default 1
-    #   optional -d --depth default=? some kind of measure of shallowness...
-
-    # before implementing this, test if iterations=1 is the same as simple dream
-    # yah, iterations = 1 is good!
-
-    #print(sys.argv)
-    #print(**sys.argv[1:])
-    #start_dream(*sys.argv[1:])
 
     # sample input:
     # normal dream

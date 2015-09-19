@@ -220,8 +220,25 @@ if __name__ == "__main__":
     # depth values:
     #   'inception_3b/output' for guided dreams
     #   'inception_4c/output' is default
-    #   'inception_3b/5x5_reduce' for shallow dreams
+    #   'inception_3b/5x5_reduce' for shallow dreams(earlier than guided dream)
     # ideally, implement an index 1..10 for depth
+
+    # first inception_ "inception_3a/1x1"
+    # last inception_3a/output
+    # then inception_3b/1x1
+    # last inception_3b/output
+    # then inception_4a/1x1
+    # passes inception_4a/5x5_reduce
+    # last inception_4a/output
+    # 4b, 4c ends with inception_4c/output
+    # 4d, 4e
+    # ends with inception_5b/output
+
+    # test depth:
+    #   guided dream with shallow depth
+    #   normal dream with guided dream depth
+    #   find other values for depth
+    #   why is shallow 5x5_reduce?
 
 
     # sample input:
@@ -266,6 +283,8 @@ if __name__ == "__main__":
     #   do shallow dreams
     #   guide and iterations won't work now
     #   output is dream_XXX with XXX being the input filename
+
+    # add the output directory for the article
 
 
     # test arg parsing

@@ -48,9 +48,10 @@ def objective_L2(dst):
     dst.diff[:] = dst.data 
 
 class Dreamer(object):
-    def __init__(self, net, source_path, guide):
+    def __init__(self, net, source_path, iterations, guide):
         self.img = np.float32(PIL.Image.open(source_path))
         self.net = net
+        self.iterations = iterations
         self.guide= guide
         #self.iterated_dream(source_path, iterations)
 
@@ -77,7 +78,7 @@ class Dreamer(object):
 
         PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source_path))
 
-    def iterated_dream(self, iterations):
+    def iterated_dream(self):
         #img = np.float32(PIL.Image.open(source_path))
         self.net.blobs.keys()
 
@@ -85,8 +86,8 @@ class Dreamer(object):
 
         h, w = frame.shape[:2]
         s = 0.05 # scale coefficient
-        for i in xrange(int(iterations)):
-            frame = deepdream(self.net, frame)
+        for i in xrange(self.iterations):
+            frame = self.deepdream(frame)
             PIL.Image.fromarray(np.uint8(frame)).save(output_path())
             frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
 
@@ -113,14 +114,14 @@ class Dreamer(object):
             bias = net.transformer.mean['data']
             src.data[:] = np.clip(src.data, -bias, 255-bias)  
 
-    def deepdream(self, net, base_img, iter_n=10, octave_n=4, octave_scale=1.4, 
+    def deepdream(self, base_img, iter_n=10, octave_n=4, octave_scale=1.4, 
                   end='inception_4c/output', clip=True, **step_params):
         # prepare base images for all octaves
         octaves = [preprocess(net, base_img)]
         for i in xrange(octave_n-1):
             octaves.append(nd.zoom(octaves[-1], (1, 1.0/octave_scale,1.0/octave_scale), order=1))
         
-        src = net.blobs['data']
+        src = self.net.blobs['data']
         detail = np.zeros_like(octaves[-1]) # allocate image for network-produced details
         for octave, octave_base in enumerate(octaves[::-1]):
             h, w = octave_base.shape[-2:]
@@ -132,10 +133,10 @@ class Dreamer(object):
             src.reshape(1,3,h,w) # resize the network's input image size
             src.data[0] = octave_base+detail
             for i in xrange(iter_n):
-                make_step(net, end=end, clip=clip, **step_params)
+                self.make_step(self.net, end=end, clip=clip, **step_params)
                 
                 # visualization
-                vis = deprocess(net, src.data[0])
+                vis = deprocess(self.net, src.data[0])
                 if not clip: # adjust image contrast if clipping is disabled
                     vis = vis*(255.0/np.percentile(vis, 99.98))
                 #showarray(vis)

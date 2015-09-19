@@ -47,6 +47,109 @@ def deprocess(net, img):
 def objective_L2(dst):
     dst.diff[:] = dst.data 
 
+class Dreamer(object):
+    def __init__(self, net, source_path, iterations, guide):
+        self.img = np.float32(PIL.Image.open(source_path))
+        self.net = net
+        self.iterations = iterations
+        self.guide= guide
+        #self.iterated_dream(source_path, iterations)
+
+    # iterated dream and guided dream could prolly be combined
+    # (guided is just a preprocess)
+    def guided_dream(source_path, guide_path):
+        img = np.float32(PIL.Image.open(source_path))
+        guide = np.float32(PIL.Image.open(guide_path))
+        #showarray(guide)
+        end = 'inception_3b/output'
+        h, w = guide.shape[:2]
+        src, dst = net.blobs['data'], net.blobs[end]
+        src.reshape(1,3,h,w)
+        src.data[0] = preprocess(net, guide)
+        net.forward(end=end)
+        # global required for overwriting the guide features
+        global guide_features
+        # what we are doing here is setting the guide once and keeping it;
+        #    just x in objective_guide is modified
+        # the objective guide is first passed into deepdream and then into make_step!
+        # end, on the other hand, is processed in forward and backward
+        guide_features = dst.data[0].copy()
+        result1 = deepdream(net, img, end=end, objective=objective_guide)
+
+        PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source_path))
+
+    def iterated_dream(self, iterations):
+        #img = np.float32(PIL.Image.open(source_path))
+        self.net.blobs.keys()
+
+        frame = self.img
+
+        h, w = frame.shape[:2]
+        s = 0.05 # scale coefficient
+        for i in xrange(int(iterations)):
+            frame = deepdream(self.net, frame)
+            PIL.Image.fromarray(np.uint8(frame)).save(output_path())
+            frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
+
+    def make_step(self, net, step_size=1.5, end='inception_4c/output', 
+                  jitter=32, clip=True, objective=objective_L2):
+        """Basic gradient ascent step."""
+
+        src = net.blobs['data'] # input image is stored in Net's 'data' blob
+        dst = net.blobs[end]
+
+        ox, oy = np.random.randint(-jitter, jitter+1, 2)
+        src.data[0] = np.roll(np.roll(src.data[0], ox, -1), oy, -2) # apply jitter shift
+                
+        net.forward(end=end)
+        objective(dst)  # specify the optimization objective
+        net.backward(start=end)
+        g = src.diff[0]
+        # apply normalized ascent step to the input image
+        src.data[:] += step_size/np.abs(g).mean() * g
+
+        src.data[0] = np.roll(np.roll(src.data[0], -ox, -1), -oy, -2) # unshift image
+                
+        if clip:
+            bias = net.transformer.mean['data']
+            src.data[:] = np.clip(src.data, -bias, 255-bias)  
+
+    def deepdream(self, net, base_img, iter_n=10, octave_n=4, octave_scale=1.4, 
+                  end='inception_4c/output', clip=True, **step_params):
+        # prepare base images for all octaves
+        octaves = [preprocess(net, base_img)]
+        for i in xrange(octave_n-1):
+            octaves.append(nd.zoom(octaves[-1], (1, 1.0/octave_scale,1.0/octave_scale), order=1))
+        
+        src = net.blobs['data']
+        detail = np.zeros_like(octaves[-1]) # allocate image for network-produced details
+        for octave, octave_base in enumerate(octaves[::-1]):
+            h, w = octave_base.shape[-2:]
+            if octave > 0:
+                # upscale details from the previous octave
+                h1, w1 = detail.shape[-2:]
+                detail = nd.zoom(detail, (1, 1.0*h/h1,1.0*w/w1), order=1)
+
+            src.reshape(1,3,h,w) # resize the network's input image size
+            src.data[0] = octave_base+detail
+            for i in xrange(iter_n):
+                make_step(net, end=end, clip=clip, **step_params)
+                
+                # visualization
+                vis = deprocess(net, src.data[0])
+                if not clip: # adjust image contrast if clipping is disabled
+                    vis = vis*(255.0/np.percentile(vis, 99.98))
+                #showarray(vis)
+                # is octave, i the depth?
+                print octave, i, end, vis.shape
+                clear_output(wait=True)
+                
+            # extract details produced on the current octave
+            detail = src.data[0]-octave_base
+        # returning the resulting image
+        return deprocess(net, src.data[0])
+
+'''
 def make_step(net, step_size=1.5, end='inception_4c/output', 
               jitter=32, clip=True, objective=objective_L2):
     """Basic gradient ascent step."""
@@ -104,7 +207,7 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
         detail = src.data[0]-octave_base
     # returning the resulting image
     return deprocess(net, src.data[0])
-
+'''
 
 def output_path():
     # faster with sort
@@ -196,41 +299,19 @@ if __name__ == "__main__":
                     'bvlc_alexnet/bvlc_alexnet.caffemodel')
     # add depth
 
-    # the other models do not work right now...
 
-    # make model an indexed parameter! [1..5] for the different types
-
-    # add help:
-    #   define guide for guided dreams
-    #   define iterations as the number of iterations
-    #   change the source with s
-    #   do shallow dreams
-    #   guide and iterations won't work now
-    #   output is dream_XXX with XXX being the input filename
-
-    # output filename is dream_ + input_file + highest index which does not overwrite
-    # a dream + .jpg
-
-
-    # test arg parsing
-    #print(parser.parse_args([]))
-    #print(parser.parse_args(['-f']))
-    #print(parser.parse_args('-f mops_1024.jpg -g sky_1024.jpg -i 100'.split()))
-    # test arg parser with prior code
-
-    # add hint about obtaining layers to article
-
-    # we did not apply the different models!
 
     args = parser.parse_args(sys.argv[1:])
     net = create_net(os.path.join(models_base, models[args.model-1]))
 
-    
-
+    dreamer = Dreamer(net, args.source, args.guide)
+    dreamer.iterated_dream(args.iterations)
+    '''
     if args.guide:
         guided_dream(args.source, args.guide)
     else:
         iterated_dream(args.source, args.iterations)
+    '''
 
 
     # sample input:
@@ -263,3 +344,22 @@ if __name__ == "__main__":
     # ./scripts/download_model_binary.py models/bvlc_reference_rcnn_ilsvrc13
     # ./scripts/download_model_binary.py models/finetune_flickr_style
     # ./scripts/download_model_binary.py models/bvlc_alexnet
+
+    # the other models do not work right now...
+
+    # make model an indexed parameter! [1..5] for the different types
+
+    # add help:
+    #   define guide for guided dreams
+    #   define iterations as the number of iterations
+    #   change the source with s
+    #   do shallow dreams
+    #   guide and iterations won't work now
+    #   output is dream_XXX with XXX being the input filename
+
+
+    # test arg parsing
+    #print(parser.parse_args([]))
+    #print(parser.parse_args(['-f']))
+    #print(parser.parse_args('-f mops_1024.jpg -g sky_1024.jpg -i 100'.split()))
+    # test arg parser with prior code

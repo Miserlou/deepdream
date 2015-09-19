@@ -48,16 +48,15 @@ def objective_L2(dst):
     dst.diff[:] = dst.data 
 
 
-
 class Dreamer(object):
-    def __init__(self, net, source_path, iterations, guide_path):
+    def __init__(self, net, source_path, iterations, end, guide_path):
         self.img = np.float32(PIL.Image.open(source_path))
         self.net = net
         self.iterations = iterations
         self.objective = objective_L2
         # shallow dreams could be implemented here...
-        self.end = None
 
+        self.end = end
 
         if guide_path:
             self.end, self.guide_features = self.create_guide(guide_path)
@@ -73,11 +72,11 @@ class Dreamer(object):
         A = x.T.dot(y) # compute the matrix of dot-products with guide features
         dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
 
+    # use self.end instead of end
     def create_guide(self, guide_path):
         guide = np.float32(PIL.Image.open(guide_path))
         # why is an end set for the guided dream? try result without
-        end = 'inception_3b/output'
-        # test
+        # this makes the dream more shallow
         end = 'inception_3b/output'
         h, w = guide.shape[:2]
         src, dst = net.blobs['data'], net.blobs[end]
@@ -179,8 +178,10 @@ def output_path():
 # how does the "impressionist" style work?
 
 # shallow layers create textured images:
+# why is this set to reduce and not output?
 # deepdream(net, img, end='inception_3b/5x5_reduce')
 # why is this shallow?
+# why reduce and not output?
 
 # 3b is more shallow than 4c...
 
@@ -189,6 +190,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--source', nargs='?', const='sky_1024.jpg', default='sky_1024.jpg')
+    parser.add_argument('-d', '--depth', nargs='?', const='inception_4c/output', default='inception_4c/output')
     parser.add_argument('-g', '--guide', nargs='?', default=None)
     parser.add_argument('-i', '--iterations', nargs='?', type=int, const=1, default=1)
     parser.add_argument('-m', '--model', nargs='?', metavar='int', type=int,
@@ -210,14 +212,16 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
     net = create_net(os.path.join(models_base, models[args.model-1]))
 
-    dreamer = Dreamer(net, args.source, args.iterations, args.guide)
+    dreamer = Dreamer(net=net, source_path=args.source, 
+                                   iterations=args.iterations, end=args.depth, 
+                                   guide_path=args.guide)
     dreamer.iterated_dream()
-    '''
-    if args.guide:
-        guided_dream(args.source, args.guide)
-    else:
-        iterated_dream(args.source, args.iterations)
-    '''
+
+    # depth values:
+    #   'inception_3b/output' for guided dreams
+    #   'inception_4c/output' is default
+    #   'inception_3b/5x5_reduce' for shallow dreams
+    # ideally, implement an index 1..10 for depth
 
 
     # sample input:

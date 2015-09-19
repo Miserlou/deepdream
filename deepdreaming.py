@@ -47,15 +47,7 @@ def deprocess(net, img):
 def objective_L2(dst):
     dst.diff[:] = dst.data 
 
-def objective_guide(dst):
-    x = dst.data[0].copy()
-    # guide_features is global here
-    y = guide_features
-    ch = x.shape[0]
-    x = x.reshape(ch,-1)
-    y = y.reshape(ch,-1)
-    A = x.T.dot(y) # compute the matrix of dot-products with guide features
-    dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
+
 
 class Dreamer(object):
     def __init__(self, net, source_path, iterations, guide_path):
@@ -63,17 +55,45 @@ class Dreamer(object):
         self.net = net
         self.iterations = iterations
         self.objective = objective_L2
+        self.end =None
 
 
         if guide_path:
-            self.guide_features = create_guide(guide_path)
+            self.end, self.guide_features = create_guide(guide_path)
             self.objective = objective_guide
 
+    def objective_guide(self, dst):
+        x = dst.data[0].copy()
+        # guide_features is global here
+        y = self.guide_features
+        ch = x.shape[0]
+        x = x.reshape(ch,-1)
+        y = y.reshape(ch,-1)
+        A = x.T.dot(y) # compute the matrix of dot-products with guide features
+        dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
+
     def create_guide(self, guide_path):
-        return None
+        guide = np.float32(PIL.Image.open(guide_path))
+        #showarray(guide)
+        end = 'inception_3b/output'
+        h, w = guide.shape[:2]
+        src, dst = net.blobs['data'], net.blobs[end]
+        src.reshape(1,3,h,w)
+        src.data[0] = preprocess(net, guide)
+        self.net.forward(end=end)
+        # global required for overwriting the guide features
+        #global guide_features
+        # what we are doing here is setting the guide once and keeping it;
+        #    just x in objective_guide is modified
+        # the objective guide is first passed into deepdream and then into make_step!
+        # end, on the other hand, is processed in forward and backward
+        return end, dst.data[0].copy()
         #self.guide= guide
         #self.iterated_dream(source_path, iterations)
+        # end needs to be passed anyhow...
+        #result1 = deepdream(net, img, end=end, objective=objective_guide)
 
+    '''
     # iterated dream and guided dream could prolly be combined
     # (guided is just a preprocess)
     def guided_dream(source_path, guide_path):
@@ -96,6 +116,7 @@ class Dreamer(object):
         result1 = deepdream(net, img, end=end, objective=objective_guide)
 
         PIL.Image.fromarray(np.uint8(result1)).save(get_output_path(source_path))
+    '''
 
     def iterated_dream(self):
         #img = np.float32(PIL.Image.open(source_path))
@@ -106,7 +127,10 @@ class Dreamer(object):
         h, w = frame.shape[:2]
         s = 0.05 # scale coefficient
         for i in xrange(self.iterations):
-            frame = self.deepdream(frame)
+            if self.end:
+                frame = self.deepdream(frame, end=end)
+            else:
+                frame = self.deepdream(frame, end=end)
             PIL.Image.fromarray(np.uint8(frame)).save(output_path())
             frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
 

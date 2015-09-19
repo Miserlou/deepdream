@@ -209,7 +209,7 @@ if __name__ == "__main__":
                     'bvlc_alexnet/bvlc_alexnet.caffemodel')
     # add depth
 
-
+    # MODELS: layer names seem to be off
 
     args = parser.parse_args(sys.argv[1:])
     net = create_net(os.path.join(models_base, models[args.model-1]))
@@ -232,13 +232,24 @@ if __name__ == "__main__":
     numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
     types = ['/output', '/5x5_reduce']
 
-    for x in ['inception_4c/1x1', 'inception_4c/relu_5x5_reduce', 
-                'inception_4c/relu_5x5', 'inception_4c/relu_pool_proj', 
-                'inception_4c/5x5_reduce', 'inception_4c/output']:
+   # it seems as if we have:
+   numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
+   #size = ['1x1', '3x3', '5x5']  # w/o reduce
+   types = ['1x1', '3x3', '5x5', '/output', '/5x5_reduce', '/3x3_reduce']
+
+
+   for n in numbering:
+        for t in types:
+            end = n + '/' + t
             dreamer = Dreamer(net=net, source_path=args.source, 
-                                   iterations=args.iterations, end=x, 
+                                   iterations=args.iterations, end=end, 
                                    guide_path=args.guide)
             dreamer.iterated_dream()
+
+
+    # 1x1 is valid
+
+    # a layer has to be bottom (or top), not only name
 
     # maybe the other layer types are cool, too?
     # try relu_5x5_reduce

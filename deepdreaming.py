@@ -265,6 +265,14 @@ if __name__ == "__main__":
     # plus, iterative guided dream???
     # getopt, optparse, argparse
 
+    # ../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel
+    # ../caffe/models/googlelet_places/googlelet_places.caffemodel
+    # ../caffe/models/nin_imagenet/nin_imagenet.caffemodel
+
     # ARTICLE:
     #   link to NN downloads, explain where to store, pass a model abbreviation
     #   OR pass full model path (check for robustness , what happens w/o a subfolder)
+    # this may be the way to add models(see create_net) (and shortcut them in argv):
+    # ./scripts/download_model_binary.py models/bvlc_googlenet
+
+    # Change github repo readme

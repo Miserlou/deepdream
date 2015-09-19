@@ -1,3 +1,9 @@
+This GitHub repository is an extension of the original GitHub repository
+https://github.com/google/deepdream from Alexander Mordvintsev, Michael Tyka and
+Christopher Olah from Google. The original Readme is at the end of this file;
+the same licence(file LICENCE) applies for this work.
+
+
 # deepdream
 
 This repository contains IPython Notebook with sample code, complementing 

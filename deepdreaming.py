@@ -47,11 +47,24 @@ def deprocess(net, img):
 def objective_L2(dst):
     dst.diff[:] = dst.data 
 
+def objective_guide(dst):
+    x = dst.data[0].copy()
+    # guide_features is global here
+    y = guide_features
+    ch = x.shape[0]
+    x = x.reshape(ch,-1)
+    y = y.reshape(ch,-1)
+    A = x.T.dot(y) # compute the matrix of dot-products with guide features
+    dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
+
 class Dreamer(object):
-    def __init__(self, net, source_path, iterations, guide):
+    def __init__(self, net, source_path, iterations, guide_path):
         self.img = np.float32(PIL.Image.open(source_path))
         self.net = net
         self.iterations = iterations
+        self.guide_func
+        if guide_path:
+            self.
         self.guide= guide
         #self.iterated_dream(source_path, iterations)
 
@@ -231,7 +244,7 @@ def output_path():
 # why is this shallow?
 
 # 3b is more shallow than 4c...
-
+'''
 def objective_guide(dst):
     x = dst.data[0].copy()
     # guide_features is global here
@@ -277,6 +290,7 @@ def iterated_dream(source_path, iterations):
         frame = deepdream(net, frame)
         PIL.Image.fromarray(np.uint8(frame)).save(output_path())
         frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
+'''
 
 if __name__ == "__main__":
     import argparse

@@ -55,12 +55,13 @@ class Dreamer(object):
         self.net = net
         self.iterations = iterations
         self.objective = objective_L2
-        self.end =None
+        # shallow dreams could be implemented here...
+        self.end = None
 
 
         if guide_path:
-            self.end, self.guide_features = create_guide(guide_path)
-            self.objective = objective_guide
+            self.end, self.guide_features = self.create_guide(guide_path)
+            self.objective = self.objective_guide
 
     def objective_guide(self, dst):
         x = dst.data[0].copy()
@@ -128,9 +129,9 @@ class Dreamer(object):
         s = 0.05 # scale coefficient
         for i in xrange(self.iterations):
             if self.end:
-                frame = self.deepdream(frame, end=end)
+                frame = self.deepdream(frame, end=self.end)
             else:
-                frame = self.deepdream(frame, end=end)
+                frame = self.deepdream(frame)
             PIL.Image.fromarray(np.uint8(frame)).save(output_path())
             frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
 

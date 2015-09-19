@@ -192,7 +192,7 @@ if __name__ == "__main__":
     #parser.add_argument('-m', '--model', nargs='?', const='../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel', default='../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel')
     
     parser.add_argument('-m', '--model', nargs='?', metavar='int', type=int,
-                                    choices=xrange(5)+1, help='model 1..5',
+                                    choices=xrange(1, 6), help='model 1..5',
                                     const=1, default=1)
 
     models_base = '../caffe/models'
@@ -229,8 +229,7 @@ if __name__ == "__main__":
     # we did not apply the different models!
 
     args = parser.parse_args(sys.argv[1:])
-
-    net = create_net(os.path.join(models_base, models(args.model)))
+    net = create_net(os.path.join(models_base, models[args.model-1]))
     #net = create_net('../caffe/models/bvlc_googlenet/')
 
     # we have these:

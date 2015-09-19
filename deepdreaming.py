@@ -19,10 +19,15 @@ import caffe
 # caffe.set_device(0) # select GPU device if multiple devices exist
 
 
-def create_net(model_path):
+def create_net(model_file):
+    # here, it should be the file path; for net_fn, split of the last component
+    net_fn= '/'.join(model_file.split('/')[:-1].append('deploy.prototxt'))
     #model_path = '../caffe/models/bvlc_googlenet/' # substitute your path here
-    net_fn   = model_path + 'deploy.prototxt'
-    param_fn = model_path + 'bvlc_googlenet.caffemodel'
+    #net_fn   = model_file + 'deploy.prototxt'
+    param_fn = model_file + '/bvlc_googlenet.caffemodel'
+
+    import ipdb
+    ipdb.set_trace()
 
     # Patching model to be able to compute gradients.
     # Note that you can also manually add "force_backward: true" line to "deploy.prototxt".
@@ -179,8 +184,10 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--source', nargs='?', const='sky_1024.jpg', default='sky_1024.jpg')
     parser.add_argument('-g', '--guide', nargs='?', default=None)
     parser.add_argument('-i', '--iterations', nargs='?', const=1, default=1)
-    parser.add_argument('-m', '--model', nargs='?', const='../caffe/models/bvlc_googlenet/', default='../caffe/models/bvlc_googlenet/')
+    parser.add_argument('-m', '--model', nargs='?', const='../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel', default='../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel')
     # add depth
+
+    # make model an indexed parameter! [1..5] for the different types
 
     # add help:
     #   define guide for guided dreams

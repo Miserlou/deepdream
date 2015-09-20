@@ -202,58 +202,14 @@ if __name__ == "__main__":
 
     layer = 'inception_' + numbering[args.depth-1] + '/' + layer_types[args.type-1]
     
+
+    # change it: pass model path and layer name
+    #   add help howto play with these values
+
     dreamer = Dreamer(net=net, source_path=args.source, 
                                    iterations=args.iterations, end=layer, 
                                    guide_path=args.guide)
     dreamer.iterated_dream()
     
 
-    # depth values:
-    #   'inception_3b/output' for guided dreams
-    #   'inception_4c/output' is default
-    #   'inception_3b/5x5_reduce' for shallow dreams(earlier than guided dream)
-    # ideally, implement an index 1..10 for depth
 
-    # write in Readme and post -d 2 for guided
-    # write in Readme and post -d 2 -t 5 for shallow
-    # (generally, add some sample input)
-
-
-    # can we fuse iteratvie and normal dream
-    # plus, iterative guided dream???
-    # getopt, optparse, argparse
-
-    # ../caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel
-    # ../caffe/models/googlelet_places/googlelet_places.caffemodel
-    # ../caffe/models/nin_imagenet/nin_imagenet.caffemodel
-
-    # ARTICLE:
-    #   link to NN downloads, explain where to store, pass a model abbreviation
-    #   OR pass full model path (check for robustness , what happens w/o a subfolder)
-    # this may be the way to add models(see create_net) (and shortcut them in argv):
-    # ./scripts/download_model_binary.py models/bvlc_googlenet
-
-    # Change github repo readme
-
-    # install additional nets:
-    # cd ~/deepdream/caffe
-    # ./scripts/download_model_binary.py models/bvlc_reference_caffenet
-    # ./scripts/download_model_binary.py models/bvlc_reference_rcnn_ilsvrc13
-    # ./scripts/download_model_binary.py models/finetune_flickr_style
-    # ./scripts/download_model_binary.py models/bvlc_alexnet
-
-    # the other models do not work right now...
-
-    # make model an indexed parameter! [1..5] for the different types
-
-    # add help:
-    #   define guide for guided dreams
-    #   define iterations as the number of iterations
-    #   change the source with s
-    #   do shallow dreams
-    #   guide and iterations won't work now
-    #   output is dream_XXX with XXX being the input filename
-
-    # add the output directory for the article
-
-    # supply deepdream image?

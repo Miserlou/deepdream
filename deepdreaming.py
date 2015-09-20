@@ -193,12 +193,18 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--source', nargs='?', const='sky_1024.jpg', default='sky_1024.jpg')
-    parser.add_argument('-d', '--depth', nargs='?', const='inception_4c/output', default='inception_4c/output')
+    #parser.add_argument('-d', '--depth', nargs='?', const='inception_4c/output', default='inception_4c/output')
     parser.add_argument('-g', '--guide', nargs='?', default=None)
     parser.add_argument('-i', '--iterations', nargs='?', type=int, const=1, default=1)
     parser.add_argument('-m', '--model', nargs='?', metavar='int', type=int,
                                     choices=xrange(1, 6), help='model 1..5',
                                     const=1, default=1)
+    parser.add_argument('-d', '--depth', nargs='?', metavar='int', type=int,
+                                    choices=xrange(1, 10), help='depth 1..10',
+                                    const=5, default=5)
+    parser.add_argument('-t', '--type', nargs='?', metavar='int', type=int,
+                                    choices=xrange(1, 10), help='layer type 1..6',
+                                    const=4, default=4)
     # add -d = depth
 
     models_base = '../caffe/models'
@@ -230,25 +236,26 @@ if __name__ == "__main__":
     # ideally, implement an index 1..10 for depth
 
     # 18 layer types...
-    numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
-    types = ['/output', '/5x5_reduce']
+    #numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
+    #layer_types = ['/output', '/5x5_reduce']
 
     # test it with one of every output type, not all permutations!
 
     # it seems as if we have:
     numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
     #size = ['1x1', '3x3', '5x5']  # w/o reduce
-    types = ['1x1', '3x3', '5x5', 'output', '5x5_reduce', '3x3_reduce']
+    layer_types = ['1x1', '3x3', '5x5', 'output', '5x5_reduce', '3x3_reduce']
 
     # more easy:
     #   make a set from all tops or bottoms; does sorting work?
-
+    '''
     for t in types:
         end = 'inception_4c/' + t
         dreamer = Dreamer(net=net, source_path=args.source, 
                                iterations=args.iterations, end=end, 
                                guide_path=args.guide)
         dreamer.iterated_dream()
+    '''
 
     '''
     for n in numbering:

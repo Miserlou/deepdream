@@ -1,7 +1,4 @@
-# the dir frames need to be created!
-# branch the google project
-
-import sys, os
+import argparse, os, sys
 
 # imports and basic notebook setup
 from cStringIO import StringIO
@@ -170,9 +167,7 @@ class Dreamer(object):
         return deprocess(self.net, src.data[0])
 
 
-if __name__ == "__main__":
-    import argparse
-
+def parse_arguments(sysargs):
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--source', nargs='?', const='sky_1024.jpg', default='sky_1024.jpg')
     parser.add_argument('-g', '--guide', nargs='?', default=None)
@@ -187,19 +182,19 @@ if __name__ == "__main__":
                                     choices=xrange(1, 10), help='layer type 1..6',
                                     const=4, default=4)
 
+    return parser.parse_args(sysargs)
+
+if __name__ == "__main__":
+
+    args = parse_arguments(sys.argv[1:])
 
     models_base = '../caffe/models'
-
     models = ('bvlc_googlenet/bvlc_googlenet.caffemodel',
                     'bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel',
                     'bvlc_reference_rcnn_ilsvrc13/bvlc_reference_rcnn_ilsvrc13.caffemodel',
                     'finetune_flickr_style/finetune_flickr_style.caffemodel',
                     'bvlc_alexnet/bvlc_alexnet.caffemodel')
 
-
-    # move argument parsing into function
-
-    args = parser.parse_args(sys.argv[1:])
     net = create_net(os.path.join(models_base, models[args.model-1]))
 
     numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
@@ -262,10 +257,3 @@ if __name__ == "__main__":
     # add the output directory for the article
 
     # supply deepdream image?
-
-
-    # test arg parsing
-    #print(parser.parse_args([]))
-    #print(parser.parse_args(['-f']))
-    #print(parser.parse_args('-f mops_1024.jpg -g sky_1024.jpg -i 100'.split()))
-    # test arg parser with prior code

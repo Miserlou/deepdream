@@ -63,6 +63,7 @@ class Dreamer(object):
             self.guide_features = self.create_guide(guide_path)
             self.objective = self.objective_guide
 
+    # make this a product of a generator function with guide_features in its scope
     def objective_guide(self, dst):
         x = dst.data[0].copy()
         # guide_features is global here
@@ -232,19 +233,32 @@ if __name__ == "__main__":
     numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
     types = ['/output', '/5x5_reduce']
 
+    # test it with one of every output type, not all permutations!
+
     # it seems as if we have:
     numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
     #size = ['1x1', '3x3', '5x5']  # w/o reduce
-    types = ['1x1', '3x3', '5x5', '/output', '/5x5_reduce', '/3x3_reduce']
+    types = ['1x1', '3x3', '5x5', 'output', '5x5_reduce', '3x3_reduce']
 
+    # more easy:
+    #   make a set from all tops or bottoms; does sorting work?
 
+    for t in types:
+        end = 'inception_4c/' + t
+        dreamer = Dreamer(net=net, source_path=args.source, 
+                               iterations=args.iterations, end=end, 
+                               guide_path=args.guide)
+        dreamer.iterated_dream()
+
+    '''
     for n in numbering:
         for t in types:
-            end = n + '/' + t
+            end = 'inception_' + n + '/' + t
             dreamer = Dreamer(net=net, source_path=args.source, 
                                    iterations=args.iterations, end=end, 
                                    guide_path=args.guide)
             dreamer.iterated_dream()
+    '''
 
 
     # 1x1 is valid

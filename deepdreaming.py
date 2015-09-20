@@ -218,22 +218,32 @@ if __name__ == "__main__":
 
     # MODELS: layer names seem to be off
 
+    # move argument parsing into function
+
     args = parser.parse_args(sys.argv[1:])
     net = create_net(os.path.join(models_base, models[args.model-1]))
 
+    numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
+    layer_types = ['1x1', '3x3', '5x5', 'output', '5x5_reduce', '3x3_reduce']
+
+    layer = 'inception_' + numbering[args.depth-1] + '/' + layer_types[args.type-1]
+
     # off for layer test
-    '''
+    
     dreamer = Dreamer(net=net, source_path=args.source, 
-                                   iterations=args.iterations, end=args.depth, 
+                                   iterations=args.iterations, end=layer, 
                                    guide_path=args.guide)
     dreamer.iterated_dream()
-    '''
+    
 
     # depth values:
     #   'inception_3b/output' for guided dreams
     #   'inception_4c/output' is default
     #   'inception_3b/5x5_reduce' for shallow dreams(earlier than guided dream)
     # ideally, implement an index 1..10 for depth
+
+    # write in Readme and post -d 2 for guided
+    # write in Readme and post -d 2 -t 5 for shallow
 
     # 18 layer types...
     #numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
@@ -242,9 +252,7 @@ if __name__ == "__main__":
     # test it with one of every output type, not all permutations!
 
     # it seems as if we have:
-    numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
-    #size = ['1x1', '3x3', '5x5']  # w/o reduce
-    layer_types = ['1x1', '3x3', '5x5', 'output', '5x5_reduce', '3x3_reduce']
+
 
     # more easy:
     #   make a set from all tops or bottoms; does sorting work?
@@ -277,7 +285,7 @@ if __name__ == "__main__":
     #   relu_5x5
     #   inception_3a/1x1
     #   3b/relu_pool_proj
-
+    '''
     layer_types = {}
 
     index = 0
@@ -285,6 +293,7 @@ if __name__ == "__main__":
         for t in types:
             layer_types[index] = n + t
             index += 1
+    '''
 
     #print "len layer_types: " + str(len(layer_types))
 

@@ -60,11 +60,12 @@ def objective_L2(dst):
 
 
 class Dreamer(object):
-    def __init__(self, net, source_path, iterations, end, guide_path):
+    def __init__(self, net, source_path, iterations, end, guide_path, octaves):
         self.img = np.float32(PIL.Image.open(source_path))
         self.net = net
         self.iterations = iterations
         self.objective = objective_L2
+        self.octave_n = octaves
 
         self.end = end
 
@@ -101,11 +102,13 @@ class Dreamer(object):
 
         h, w = frame.shape[:2]
         s = 0.05 # scale coefficient
+
         for i in xrange(self.iterations):
             if self.end:
-                frame = self.deepdream(frame, end=self.end)
-            else:
-                frame = self.deepdream(frame)
+                frame = self.deepdream(frame, end=self.end, octave_n=self.octave_n)
+            else:            
+                frame = self.deepdream(frame, octave_n=self.octave_n)
+
             PIL.Image.fromarray(np.uint8(frame)).save(output_path())
             frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
 
@@ -168,24 +171,42 @@ class Dreamer(object):
 
 
 def parse_arguments(sysargs):
-    parser = argparse.ArgumentParser()
+    """ Setup the command line options. """
+
+    description = ''' deepdreaming.py is a handler script to simplify the usage
+        of Googles DeepDream algorithm. The DeepDream algorithm takes an image
+        as input and runs an overexpressed pattern recognition in form of
+        a convolutional neural network over it. 
+        See the original Googleresearch blog post
+        http://googleresearch.blogspot.ch/2015/06/inceptionism-going-deeper-into-neural.html
+        for more information or follow this
+        http://www.knight-of-pi.org/installing-the-google-deepdream-software/
+        tutorial for installing DeepDream on Ubuntu.
+        Try guided dreams with the options -g FILE and -d 2 or shallow dreams
+        with the options -d 2 -t 5.'''
+
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument('-s', '--source', nargs='?', const='sky_1024.jpg', 
                                      default='sky_1024.jpg', help='input filename')
     parser.add_argument('-g', '--guide', nargs='?', default=None,
                                     help='Target for guided dreams')
     parser.add_argument('-i', '--iterations', nargs='?', type=int, const=1,
                                      default=1, help='Number of iterations')
-    #parser.add_argument('-m', '--model', nargs='?', metavar='int', type=int,
-    #                                choices=xrange(1, 6), help='model 1..5',
-    #                                const=1, default=1)
     parser.add_argument('-d', '--depth', nargs='?', metavar='int', type=int,
                                     choices=xrange(1, 10),  const=5, default=5,
                                     help='Depth of the dream as an value between 1 and 10')
     parser.add_argument('-t', '--type', nargs='?', metavar='int', type=int,
                                     choices=xrange(1, 10),
                                     const=4, default=4, help='Layer type as an value between 1 and 6')
-
-    # add octave
+    parser.add_argument('-o', '--octaves', nargs='?', metavar='int', type=int,
+                                         choices=xrange(1, 10),
+                                         const=5, default=5, 
+                                         help='The number of scales the algorithm is applied to')
+    parser.add_argument('-r', '--random', action='store_true', 
+                                         help='Choose depth, layer type and octave randomly')
+    #parser.add_argument('-m', '--model', nargs='?', metavar='int', type=int,
+    #                                choices=xrange(1, 6), help='model 1..5',
+    #                                const=1, default=1)
 
     return parser.parse_args(sysargs)
 
@@ -214,13 +235,21 @@ if __name__ == "__main__":
     layer = 'inception_' + numbering[args.depth-1] + '/' + layer_types[args.type-1]
     
 
-    # change it: pass model path and layer name
-    #   add help howto play with these values
+    # test octaves
+    # implement randomization
 
+    # maaaaybe the other models work for higher octaves?
+
+    # maximum octave is 11, ie range 1, 12
+    # upload pics onto github readme
+
+
+    
     dreamer = Dreamer(net=net, source_path=args.source, 
                                    iterations=args.iterations, end=layer, 
-                                   guide_path=args.guide)
+                                   guide_path=args.guide, octaves=args.octaves)
     dreamer.iterated_dream()
+    
     
 
 

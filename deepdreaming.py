@@ -169,9 +169,12 @@ class Dreamer(object):
 
 def parse_arguments(sysargs):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--source', nargs='?', const='sky_1024.jpg', default='sky_1024.jpg')
-    parser.add_argument('-g', '--guide', nargs='?', default=None)
-    parser.add_argument('-i', '--iterations', nargs='?', type=int, const=1, default=1)
+    parser.add_argument('-s', '--source', nargs='?', const='sky_1024.jpg', 
+                                     default='sky_1024.jpg', help='input filename')
+    parser.add_argument('-g', '--guide', nargs='?', default=None,
+                                    help='Target for guided dreams')
+    parser.add_argument('-i', '--iterations', nargs='?', type=int, const=1,
+                                     default=1, help='Number of iterations')
     parser.add_argument('-m', '--model', nargs='?', metavar='int', type=int,
                                     choices=xrange(1, 6), help='model 1..5',
                                     const=1, default=1)
@@ -194,6 +197,15 @@ if __name__ == "__main__":
                     'bvlc_reference_rcnn_ilsvrc13/bvlc_reference_rcnn_ilsvrc13.caffemodel',
                     'finetune_flickr_style/finetune_flickr_style.caffemodel',
                     'bvlc_alexnet/bvlc_alexnet.caffemodel')
+    # testing
+    '''
+    models = ('bvlc_alexnet/bvlc_alexnet.caffemodel',
+                    'bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel',
+                    'bvlc_reference_rcnn_ilsvrc13/bvlc_reference_rcnn_ilsvrc13.caffemodel',
+                    'finetune_flickr_style/finetune_flickr_style.caffemodel',
+                    'bvlc_alexnet/bvlc_alexnet.caffemodel')
+    '''
+    
 
     net = create_net(os.path.join(models_base, models[args.model-1]))
 

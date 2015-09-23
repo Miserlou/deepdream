@@ -175,15 +175,17 @@ def parse_arguments(sysargs):
                                     help='Target for guided dreams')
     parser.add_argument('-i', '--iterations', nargs='?', type=int, const=1,
                                      default=1, help='Number of iterations')
-    parser.add_argument('-m', '--model', nargs='?', metavar='int', type=int,
-                                    choices=xrange(1, 6), help='model 1..5',
-                                    const=1, default=1)
+    #parser.add_argument('-m', '--model', nargs='?', metavar='int', type=int,
+    #                                choices=xrange(1, 6), help='model 1..5',
+    #                                const=1, default=1)
     parser.add_argument('-d', '--depth', nargs='?', metavar='int', type=int,
-                                    choices=xrange(1, 10), help='depth 1..10',
-                                    const=5, default=5)
+                                    choices=xrange(1, 10),  const=5, default=5,
+                                    help='Depth of the dream as an value between 1 and 10')
     parser.add_argument('-t', '--type', nargs='?', metavar='int', type=int,
-                                    choices=xrange(1, 10), help='layer type 1..6',
-                                    const=4, default=4)
+                                    choices=xrange(1, 10),
+                                    const=4, default=4, help='Layer type as an value between 1 and 6')
+
+    # add octave
 
     return parser.parse_args(sysargs)
 
@@ -192,22 +194,19 @@ if __name__ == "__main__":
     args = parse_arguments(sys.argv[1:])
 
     models_base = '../caffe/models'
+    net = create_net(os.path.join(models_base, 'bvlc_googlenet/bvlc_googlenet.caffemodel'))
+
+    # model selection turned off since i found no way of producing good
+    # dreams with different models
+    '''
     models = ('bvlc_googlenet/bvlc_googlenet.caffemodel',
                     'bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel',
                     'bvlc_reference_rcnn_ilsvrc13/bvlc_reference_rcnn_ilsvrc13.caffemodel',
                     'finetune_flickr_style/finetune_flickr_style.caffemodel',
                     'bvlc_alexnet/bvlc_alexnet.caffemodel')
-    # testing
-    '''
-    models = ('bvlc_alexnet/bvlc_alexnet.caffemodel',
-                    'bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel',
-                    'bvlc_reference_rcnn_ilsvrc13/bvlc_reference_rcnn_ilsvrc13.caffemodel',
-                    'finetune_flickr_style/finetune_flickr_style.caffemodel',
-                    'bvlc_alexnet/bvlc_alexnet.caffemodel')
-    '''
     
-
     net = create_net(os.path.join(models_base, models[args.model-1]))
+    '''
 
     numbering = ['3a', '3b', '4a', '4b', '4c', '4d', '4e', '5a', '5b']
     layer_types = ['1x1', '3x3', '5x5', 'output', '5x5_reduce', '3x3_reduce']

@@ -31,6 +31,11 @@ Select the number of iterations with the parameter -i:
 
 Be carefull, though, since choosing a large number here freezes the computer for quite some time.
 
+Output filename
+--------------------------------
+The output filename will be the higest 5-digit integer number in ./dreams which
+is not occupied already, e.g. "00023.jpg".
+
 Original README:
 --------------------------------
 

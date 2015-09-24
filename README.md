@@ -23,13 +23,36 @@ The script deepdreaming.py is controlled via command-line parameters. They are l
 
 The source file is chosen with the parameter -s:
 
-    $python deepdreaming.py -s winter_1024.jpg
+    $python deepdreaming.py -s sky_1024.jpg
 
 Select the number of iterations with the parameter -i:
 
-    $python deepdreaming.py -s winter_1024.jpg -i 3
+    $python deepdreaming.py -s sky_1024.jpg -i 3
 
 Be carefull, though, since choosing a large number here freezes the computer for quite some time.
+
+The depth of the dream could be chosen with the -d flag and a number between 1 and 10:
+
+    $python deepdreaming.py -s sky_1024.jpg -d 3
+
+The layer type in which the dream should end could be chosen with the -t flag and a number between 1 and 6:
+
+    $python deepdreaming.py -s sky_1024.jpg -t 1
+
+Choose an other octave(index of ranked prediction results, i guess) with the -o flag:
+
+    $python deepdreaming.py -s sky_1024.jpg -o 8
+
+A guide file for a guided Dream could be attached with the -g flag. This works
+best with a reduced depth, e.g. -d 2:
+
+    $python deepdreaming.py -s sky_1024.jpg -g flowers.jpg -d 2
+
+Set the -r flag to choose octave, layer depth and type randomly:
+
+    $python deepdreaming.py -s sky_1024.jpg -r
+
+
 
 Output filename
 --------------------------------

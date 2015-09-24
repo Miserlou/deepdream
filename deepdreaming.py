@@ -1,5 +1,7 @@
 import argparse, os, sys
 
+from random import randint
+
 # imports and basic notebook setup
 from cStringIO import StringIO
 import numpy as np
@@ -199,11 +201,11 @@ def parse_arguments(sysargs):
                                     choices=xrange(1, 10),
                                     const=4, default=4, help='Layer type as an value between 1 and 6')
     parser.add_argument('-o', '--octaves', nargs='?', metavar='int', type=int,
-                                         choices=xrange(1, 10),
+                                         choices=xrange(1, 12),
                                          const=5, default=5, 
                                          help='The number of scales the algorithm is applied to')
     parser.add_argument('-r', '--random', action='store_true', 
-                                         help='Choose depth, layer type and octave randomly')
+                                         help='Overwrite depth, layer type and octave with random values ')
     #parser.add_argument('-m', '--model', nargs='?', metavar='int', type=int,
     #                                choices=xrange(1, 6), help='model 1..5',
     #                                const=1, default=1)
@@ -233,21 +235,17 @@ if __name__ == "__main__":
     layer_types = ['1x1', '3x3', '5x5', 'output', '5x5_reduce', '3x3_reduce']
 
     layer = 'inception_' + numbering[args.depth-1] + '/' + layer_types[args.type-1]
-    
+    octaves = args.octaves
 
-    # test octaves
-    # implement randomization
-
-    # maaaaybe the other models work for higher octaves?
-
-    # maximum octave is 11, ie range 1, 12
-    # upload pics onto github readme
-
-
+    # overwrite octaves and layer with random values
+    if args.random == True:
+        octaves = randint(1, 11)
+        layer = ('inception_' + numbering[randint(0, len(numbering)-1)] + '/' +
+                      layer_types[randint(0, len(layer_types)-1)])
     
     dreamer = Dreamer(net=net, source_path=args.source, 
                                    iterations=args.iterations, end=layer, 
-                                   guide_path=args.guide, octaves=args.octaves)
+                                   guide_path=args.guide, octaves=octaves)
     dreamer.iterated_dream()
     
     

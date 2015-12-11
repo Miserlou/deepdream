@@ -71,6 +71,7 @@ class Dreamer(object):
         self.iterations = iterations
         self.objective = objective_L2
         self.octave_n = octaves
+        self.source_path = source_path
 
         self.end = end
 

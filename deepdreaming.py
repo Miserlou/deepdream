@@ -16,8 +16,8 @@ import os
 
 # If your GPU supports CUDA and Caffe was built with CUDA support,
 # uncomment the following to run Caffe operations on the GPU.
-# caffe.set_mode_gpu()
-# caffe.set_device(0) # select GPU device if multiple devices exist
+caffe.set_mode_gpu()
+caffe.set_device(0) # select GPU device if multiple devices exist
 
 def output_path():
     """ Create an output filename: look into folder dreams,

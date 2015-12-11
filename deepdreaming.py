@@ -27,6 +27,9 @@ def output_path(subdir, filename):
     index=0
     output_file = "dreams/" + subdir + "/" + filename + "_%06d.jpg"%index
 
+    if not os.path.exists("dreams/" + subdir):
+        os.makedirs("dreams/" + subdir)
+
     while os.path.exists(output_file):
         index += 1
         output_file = "dreams/" + subdir + "/" + filename + "_%06d.jpg"%index
@@ -111,8 +114,8 @@ class Dreamer(object):
             else:            
                 frame = self.deepdream(frame, octave_n=self.octave_n)
 
-            subdir = source_path.split('/')[-2]
-            filename = source_path.split('/')[-1].split('.')[0]
+            subdir = self.source_path.split('/')[-2]
+            filename = self.source_path.split('/')[-1].split('.')[0]
             PIL.Image.fromarray(np.uint8(frame)).save(output_path(subdir, filename))
             frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
 

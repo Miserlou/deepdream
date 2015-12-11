@@ -19,17 +19,17 @@ import os
 caffe.set_mode_gpu()
 caffe.set_device(0) # select GPU device if multiple devices exist
 
-def output_path():
+def output_path(subdir, filename):
     """ Create an output filename: look into folder dreams,
         return lowest INTEGER.jpg with leading zeros, e.g. 00020.jpg """
     # faster with sort
 
     index=0
-    output_file = "dreams/%06d.jpg"%index
+    output_file = "dreams/" + subdir + "/" + filename + "_%06d.jpg"%index
 
     while os.path.exists(output_file):
         index += 1
-        output_file = "dreams/%06d.jpg"%index
+        output_file = "dreams/" + subdir + "/" + filename + "_%06d.jpg"%index
 
     return output_file
 
@@ -111,7 +111,9 @@ class Dreamer(object):
             else:            
                 frame = self.deepdream(frame, octave_n=self.octave_n)
 
-            PIL.Image.fromarray(np.uint8(frame)).save(output_path())
+            subdir = source_path.split('/')[-2]
+            filename = source_path.split('/')[-1].split('.')[0]
+            PIL.Image.fromarray(np.uint8(frame)).save(output_path(subdir, filename))
             frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
 
     def make_step(self, step_size=1.5, end='inception_4c/output', 
@@ -217,7 +219,7 @@ if __name__ == "__main__":
     args = parse_arguments(sys.argv[1:])
 
     models_base = '../caffe/models'
-    net = create_net(os.path.join(models_base, 'bvlc_googlenet/bvlc_googlenet.caffemodel'))
+    net = create_net(os.path.join(models_base, 'MYNET/MYNET_iter_110000.caffemodel'))
 
     # model selection turned off since i found no way of producing good
     # dreams with different models
@@ -248,6 +250,3 @@ if __name__ == "__main__":
                                    guide_path=args.guide, octaves=octaves)
     dreamer.iterated_dream()
     
-    
-
-

@@ -107,7 +107,7 @@ class Dreamer(object):
         frame = self.img
 
         h, w = frame.shape[:2]
-        s = 0.05 # scale coefficient
+        s = 0.02 # scale coefficient
 
         for i in xrange(self.iterations):
             if self.end:
@@ -208,7 +208,7 @@ def parse_arguments(sysargs):
                                     const=4, default=4, help='Layer type as an value between 1 and 6')
     parser.add_argument('-o', '--octaves', nargs='?', metavar='int', type=int,
                                          choices=xrange(1, 12),
-                                         const=5, default=5, 
+                                         const=4, default=4, 
                                          help='The number of scales the algorithm is applied to')
     parser.add_argument('-r', '--random', action='store_true', 
                                          help='Overwrite depth, layer type and octave with random values ')
@@ -249,8 +249,12 @@ if __name__ == "__main__":
         layer = ('inception_' + numbering[randint(0, len(numbering)-1)] + '/' +
                       layer_types[randint(0, len(layer_types)-1)])
     
-    dreamer = Dreamer(net=net, source_path=args.source, 
-                                   iterations=args.iterations, end=layer, 
-                                   guide_path=args.guide, octaves=octaves)
-    dreamer.iterated_dream()
+    # Lets try all of these..
+    for number in numbering:
+        for layer_type in layer_types:
+            layer = 'inception_' + number + '/' + layer_type
+            dreamer = Dreamer(net=net, source_path=args.source, 
+                                           iterations=args.iterations, end=layer, 
+                                           guide_path=args.guide, octaves=octaves)
+            dreamer.iterated_dream()
     

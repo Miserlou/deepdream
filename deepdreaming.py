@@ -24,6 +24,8 @@ def output_path(subdir, filename, layer=''):
         return lowest INTEGER.jpg with leading zeros, e.g. 00020.jpg """
     # faster with sort
 
+    layer = layer.replace('/', '-')
+
     index=0
     output_file = "dreams/" + subdir + "/" + filename + "_" + layer + "_%06d.jpg"%index
 

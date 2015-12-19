@@ -19,7 +19,7 @@ import os
 caffe.set_mode_gpu()
 caffe.set_device(0) # select GPU device if multiple devices exist
 
-def output_path(subdir, filename):
+def output_path(subdir, filename, layer=''):
     """ Create an output filename: look into folder dreams,
         return lowest INTEGER.jpg with leading zeros, e.g. 00020.jpg """
     # faster with sort
@@ -117,7 +117,7 @@ class Dreamer(object):
 
             subdir = self.source_path.split('/')[-2]
             filename = self.source_path.split('/')[-1].split('.')[0]
-            PIL.Image.fromarray(np.uint8(frame)).save(output_path(subdir, filename))
+            PIL.Image.fromarray(np.uint8(frame)).save(output_path(subdir, filename, self.end))
             frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
 
     def make_step(self, step_size=1.5, end='inception_4c/output', 

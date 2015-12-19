@@ -25,14 +25,14 @@ def output_path(subdir, filename, layer=''):
     # faster with sort
 
     index=0
-    output_file = "dreams/" + subdir + "/" + filename + "_%06d.jpg"%index
+    output_file = "dreams/" + subdir + "/" + filename + "_" + layer + "_%06d.jpg"%index
 
     if not os.path.exists("dreams/" + subdir):
         os.makedirs("dreams/" + subdir)
 
     while os.path.exists(output_file):
         index += 1
-        output_file = "dreams/" + subdir + "/" + filename + "_%06d.jpg"%index
+        output_file = "dreams/" + subdir + "/" + filename + "_" + layer + "_%06d.jpg"%index
 
     return output_file
 
